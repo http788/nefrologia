@@ -12,14 +12,27 @@ require('dotenv').config();
 const app = express();
 // CAMBIAR: Usar la variable de entorno PORT (que asigna el hosting)
 
-// --- server.js (Bloque de Conexión) ---
+// --- server.js (Bloque de Conexión COMPLETO) ---
 
-// 1. BASE DE DATOS (Asegúrate de que este bloque cierra correctamente)
+// 1. BASE DE DATOS (REEMPLAZA TODO EL BLOQUE DE client = new Client)
 const client = new Client({
-  // ... tu configuración de conexión
-  ssl: process.env.DB_HOST ? { rejectUnauthorized: false } : false
+  // PRIORIDAD 1: Usa la URL completa que Render crea automáticamente.
+  connectionString: process.env.DATABASE_URL, 
+  
+  // FALLBACKS (Si DATABASE_URL no existe o para desarrollo local):
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'hospital_nefrologia',
+  password: process.env.DB_PASSWORD, 
+  port: process.env.DB_PORT || 5432,
+  
+  // CONDICIÓN SSL (Solo activa SSL si DATABASE_URL existe)
+  ssl: process.env.DATABASE_URL ? { 
+    rejectUnauthorized: false 
+  } : false 
 }); 
-// ^^^^^ Revisa que el objeto 'client' cierre con un ); aquí
+// ^^^^^ ESTE SÍ ES EL CIERRE CORRECTO.
+
 
 client.connect()
   .then(() => console.log('✅ Conexión exitosa a PostgreSQL')) // <--- Línea 28
@@ -443,3 +456,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor SINEF corriendo en http://localhost:${PORT}`);
 
 });
+
