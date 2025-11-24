@@ -1,0 +1,10 @@
+# Directorios de Node.js y logs
+/node_modules
+npm-debug.log*
+
+# Archivos sensibles que contienen la contraseña de la BD
+# (Si decides usar un archivo .env para ocultarla)
+.env
+
+# Archivos de subidas locales
+/public/uploads
