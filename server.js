@@ -1,3 +1,4 @@
+// --- COMIENZO DE server.js ---
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Client } = require('pg');
@@ -5,19 +6,27 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const session = require('express-session');
+// AGREGAR ESTA LÍNEA PARA CARGAR LAS VARIABLES DE ENTORNO
+require('dotenv').config(); 
 
 const app = express();
-const port = 3000;
+// CAMBIAR: Usar la variable de entorno PORT (que asigna el hosting)
 
-// 1. BASE DE DATOS
+// 1. BASE DE DATOS (AQUÍ ESTÁ LA CORRECCIÓN CRÍTICA)
 const client = new Client({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'hospital_nefrologia',
-  password: 'Elvimar-15', 
-  port: 5432,
+  // Lee las variables del entorno del hosting o usa valores locales si no existen (solo para testing local)
+  user: process.env.DB_USER || 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'hospital_nefrologia',
+  // AHORA LEE LA CONTRASEÑA DE forma segura
+  password: process.env.DB_PASSWORD || 'Elvimar-15', 
+  port: process.env.DB_PORT || 5432,
+  
+ // CORRECCIÓN CRÍTICA: Solo activa SSL si existe una variable de entorno DB_HOST
+  ssl: process.env.DB_HOST ? { 
+    rejectUnauthorized: false 
+  } : false 
 });
-
 client.connect()
   .then(() => console.log('✅ Conexión exitosa a PostgreSQL'))
   .catch(err => console.error('❌ Error de conexión a BD', err.stack));
@@ -434,7 +443,9 @@ app.put('/api/doctor/actualizar-clinica/:id', async (req, res) => {
 
 
 
-// 7. INICIAR SERVIDOR
-app.listen(port, () => {
-  console.log(`🚀 Servidor SINEF corriendo en http://localhost:${port}`);
+// 7. INICIAR SERVIDOR (Lee el puerto del entorno o usa 3000 por defecto)
+const PORT = process.env.PORT || 3000; 
+
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor SINEF corriendo en http://localhost:${PORT}`);
 });
