@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema - HGC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <style>
+        body {
+            background-color: #0a192f;
+            color: #e6f1ff;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .card-login {
+            background: #112240;
+            border: 1px solid #233554;
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px -10px rgba(2, 12, 27, 0.7);
+        }
+        .form-control {
+            background-color: #050d18;
+            border: 1px solid #233554;
+            color: white;
+            /* Quitamos el margen inferior directo porque ahora va en el grupo */
+        }
+        .form-control:focus {
+            background-color: #050d18;
+            border-color: #64ffda;
+            color: white;
+            box-shadow: none; /* Quitamos sombra por defecto para manejarla en el grupo */
+        }
+        
+        /* Estilo para el botón del ojito */
+        .input-group-text {
+            background-color: #050d18;
+            border: 1px solid #233554;
+            border-left: none; /* Para unirlo visualmente */
+            color: #8892b0;
+            cursor: pointer;
+        }
+        
+        /* Efecto de foco en el grupo completo */
+        .input-group:focus-within .form-control, 
+        .input-group:focus-within .input-group-text {
+            border-color: #64ffda;
+        }
+
+        .btn-login {
+            background: linear-gradient(145deg, #d32f2f, #b71c1c);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+        .btn-login:hover {
+            transform: scale(1.02);
+            background: #f44336;
+            color: white;
+        }
+        .logo-img {
+            width: 80px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+        }
+    </style>
+</head>
+<body>
+    <div class="card-login text-center">
+        <img src="logo_hospital.png" alt="Logo Hospital" class="logo-img">
+        <h3 class="mb-4 fw-bold">Acceso SINEF</h3>
+        
+        <form action="/login" method="POST">
+            <div class="text-start mb-1"><label>Correo Electrónico</label></div>
+            <div class="mb-3">
+                <input type="email" name="email" class="form-control" placeholder="ejemplo@hospital.com" required>
+            </div>
+            
+            <div class="text-start mb-1"><label>Contraseña</label></div>
+            <div class="input-group mb-4">
+                <input type="password" name="password" id="passwordInput" class="form-control" placeholder="••••••••" required style="border-right: none;">
+                <span class="input-group-text" onclick="togglePassword()">
+                    <i class="bi bi-eye-slash-fill" id="toggleIcon"></i>
+                </span>
+            </div>
+            
+            <button type="submit" class="btn btn-login">INGRESAR</button>
+        </form>
+        
+        <div class="mt-4">
+            <a href="index.html" class="text-secondary text-decoration-none small">← Volver al inicio</a>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const icon = document.getElementById('toggleIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('bi-eye-slash-fill');
+                icon.classList.add('bi-eye-fill');
+                icon.style.color = '#64ffda'; // Se ilumina cuando está visible
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('bi-eye-fill');
+                icon.classList.add('bi-eye-slash-fill');
+                icon.style.color = '#8892b0'; // Color normal
+            }
+        }
+    </script>
+</body>
+</html>

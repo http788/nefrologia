@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal del Paciente - SINEF</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --bg-body: #0a192f;       
+            --bg-sidebar: #061221;    
+            --bg-card: #112240;       
+            --text-white: #ffffff;    
+            --accent-blue: #233554;   
+            --highlight: #64ffda;     
+            --danger: #ef4444;
+            --warning: #ffc107;
+            --input-bg: #112240; /* Fondo sólido para evitar transparencias raras */
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            color: var(--text-white); 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow-x: hidden; 
+        }
+        
+        /* --- SOLUCIÓN DEFINITIVA AL PARPADEO --- */
+        
+        /* 1. Reset agresivo de inputs */
+        .form-control, .form-select, input, select, textarea {
+            background-color: var(--input-bg) !important;
+            border: 1px solid var(--accent-blue) !important;
+            color: white !important;
+            transition: none !important; /* Cero animaciones */
+            box-shadow: none !important; /* Cero sombras */
+            outline: none !important;
+        }
+
+        /* 2. Estado Focus (Clic) Sólido */
+        .form-control:focus, .form-select:focus {
+            background-color: var(--input-bg) !important;
+            border-color: var(--highlight) !important;
+            box-shadow: none !important;
+            color: white !important;
+        }
+
+        /* 3. TRUCO: Evitar parpadeo blanco del autocompletado del navegador */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px var(--input-bg) inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+        
+        .form-control:disabled {
+            background-color: #061221 !important; /* Fondo más oscuro fijo */
+            color: #8892b0 !important;
+            border-color: #233554 !important;
+            opacity: 1;
+        }
+        
+        /* --- CORRECCIÓN ALERTAS (FONDO OSCURO) --- */
+        .alert-dark-success {
+            background-color: #064e3b !important; /* Verde oscuro muy fuerte */
+            border: 1px solid #059669 !important;
+            color: #e6f1ff !important; /* Texto blanco brillante */
+        }
+        .alert-dark-warning {
+            background-color: #78350f !important; /* Naranja oscuro */
+            border: 1px solid #d97706 !important;
+            color: #e6f1ff !important;
+        }
+        .alert-dark-danger {
+            background-color: #7f1d1d !important; /* Rojo oscuro */
+            border: 1px solid #dc2626 !important;
+            color: #e6f1ff !important;
+        }
+        /* Estado por defecto analizando */
+        .alert-dark-neutral {
+            background-color: #1e293b !important;
+            border: 1px solid #475569 !important;
+            color: #94a3b8 !important;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            background-color: var(--bg-sidebar);
+            min-height: 100vh;
+            border-right: 1px solid var(--accent-blue);
+            position: fixed; top: 0; left: 0; width: 260px; 
+            padding-top: 30px;
+            z-index: 1050; 
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .profile-icon-container {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--accent-blue);
+            margin-bottom: 20px;
+        }
+        .profile-icon-container i {
+            font-size: 3.5rem;
+            color: var(--text-white);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-link { 
+            color: rgba(255, 255, 255, 0.7); 
+            padding: 12px 30px;
+            transition: 0.3s; 
+            display: flex; align-items: center; 
+            font-size: 0.95rem;
+        }
+        .nav-link i { font-size: 1.1rem; margin-right: 15px; }
+        .nav-link:hover, .nav-link.active { 
+            background-color: rgba(255, 255, 255, 0.05); 
+            color: white; 
+            border-left: 3px solid var(--highlight); 
+        }
+
+        .main-content { margin-left: 260px; padding: 40px; transition: margin-left 0.3s ease-in-out; }
+        
+        .card-custom { 
+            background-color: var(--bg-card); 
+            border: 1px solid var(--accent-blue); 
+            border-radius: 15px; 
+            padding: 30px; 
+            margin-bottom: 30px;
+        }
+
+        .monitor-bar-bg {
+            background-color: rgba(255,255,255,0.1);
+            height: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .monitor-bar-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 1s ease-in-out;
+        }
+
+        .table-custom { --bs-table-bg: transparent; --bs-table-color: white; border-color: rgba(255,255,255,0.2); }
+        .btn-action { border: 1px solid var(--highlight); color: var(--highlight); background: transparent; font-weight: bold; padding: 8px 20px; border-radius: 50px; transition: 0.3s; }
+        .btn-action:hover { background: var(--highlight); color: var(--bg-body); }
+
+        .video-card { background-color: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden; border: 1px solid var(--accent-blue); transition: transform 0.3s; }
+        .video-card:hover { transform: scale(1.02); border-color: var(--highlight); }
+        .video-title { font-size: 0.9rem; font-weight: bold; padding: 10px; color: white; text-align: center; }
+
+        .mobile-toggle { display: none; position: fixed; top: 15px; left: 20px; z-index: 1100; background: var(--bg-card); border: 1px solid var(--highlight); color: var(--highlight); padding: 5px 10px; border-radius: 5px; font-size: 1.5rem; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040; display: none; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 80px 20px 20px 20px; }
+            .mobile-toggle { display: block; }
+            .sidebar-overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="mobile-toggle" onclick="toggleMenu()"><i class="bi bi-list"></i></button>
+    <div class="sidebar-overlay" onclick="toggleMenu()" id="overlay"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="profile-icon-container">
+            <i class="bi bi-person-circle"></i>
+            <h5 class="fw-bold text-white mt-3">Portal Paciente</h5>
+            <small class="text-white opacity-75">SINEF HGC</small>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link active" href="#" onclick="showSection('perfil', this); toggleMenu()"><i class="bi bi-gear"></i> Mis Datos</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('tablero', this); toggleMenu()"><i class="bi bi-activity"></i> Tablero de Salud</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('citas', this); toggleMenu()"><i class="bi bi-calendar-plus"></i> Gestión de Citas</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('telemedicina', this); toggleMenu()"><i class="bi bi-cloud-arrow-down"></i> Telemedicina</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('educacion', this); toggleMenu()"><i class="bi bi-book-half"></i> Educación Renal</a></li>
+            <li class="nav-item mt-3 pt-3 border-top border-secondary"><a class="nav-link text-danger" href="/logout"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
+            <div><h2 class="fw-bold text-white">Bienvenido, <span id="welcome-name" style="color: var(--highlight);">...</span></h2></div>
+            <span class="badge bg-light text-dark fs-6" id="welcome-estadio">Cargando...</span>
+        </div>
+
+        <div id="section-perfil">
+            <div class="card-custom">
+                <h4 class="text-white mb-4">Información de Registro</h4>
+                <form onsubmit="actualizarDatos(event)">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label class="small">Nombre</label><input type="text" id="p_nombre" class="form-control" disabled></div>
+                        <div class="col-md-6"><label class="small text-highlight">Cédula</label><input type="text" id="p_cedula" class="form-control fw-bold" disabled></div>
+                        <div class="col-md-6"><label class="small">Correo</label><input type="text" id="p_email" class="form-control" disabled></div>
+                        <div class="col-md-6"><label class="small">Dirección</label><input type="text" id="p_direccion" class="form-control" disabled></div>
+                        <div class="col-12 border-top border-secondary my-3"></div>
+                        <div class="col-md-6"><label class="small">Teléfono (Editable)</label><input type="tel" id="p_telefono" class="form-control" required></div>
+                        <div class="col-md-6"><label class="small text-danger">Emergencia (Editable)</label><input type="text" id="p_emergencia" class="form-control border-danger" required></div>
+                        <div class="col-12 text-end"><button class="btn btn-action mt-3">Actualizar Contacto</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="section-tablero" style="display: none;">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card-custom">
+                        <h4 class="text-white mb-4"><i class="bi bi-heart-pulse me-2"></i>Monitoreo Clínico</h4>
+                        <div class="row g-4 mt-2">
+                            <div class="col-md-6">
+                                <div class="p-3 border border-secondary rounded bg-dark">
+                                    <div class="d-flex justify-content-between"><span>Urea</span><strong class="text-warning" id="val-urea">--</strong></div>
+                                    <div class="monitor-bar-bg"><div id="bar-urea" class="monitor-bar-fill bg-warning" style="width: 0%;"></div></div>
+                                    <small class="text-muted">Rango normal: 15 - 45 mg/dL</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border border-secondary rounded bg-dark">
+                                    <div class="d-flex justify-content-between"><span>Creatinina</span><strong class="text-info" id="val-crea">--</strong></div>
+                                    <div class="monitor-bar-bg"><div id="bar-crea" class="monitor-bar-fill bg-info" style="width: 0%;"></div></div>
+                                    <small class="text-muted">Rango normal: 0.7 - 1.3 mg/dL</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 rounded" style="background: rgba(100, 255, 218, 0.1); border: 1px solid var(--highlight);">
+                            <h5 class="text-highlight"><i class="bi bi-speedometer2 me-2"></i>Estadio Renal (TFG)</h5>
+                            <p class="small m-0">Este indicador determina tu clasificación actual.</p>
+                            <h2 class="mt-2 fw-bold text-white" id="val-tfg">--</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-custom text-center">
+                        <i class="bi bi-shield-check text-white fs-1"></i>
+                        <h5 class="mt-3">Estado Actual</h5>
+                        <hr class="border-secondary">
+                        <p class="small opacity-75">Interpretación automática del sistema.</p>
+                        
+                        <div id="alerta-salud" class="alert alert-dark-neutral p-3 rounded text-white">
+                            <i class="bi bi-arrow-clockwise spinner-border spinner-border-sm me-2"></i>Analizando datos...
+                        </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-citas" style="display: none;">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="card-custom">
+                        <h4 class="text-white mb-4"><i class="bi bi-calendar-plus me-2"></i>Solicitar Cita</h4>
+                        <form onsubmit="pedirCita(event)">
+                            <div class="mb-3"><label class="small">Especialidad</label><select id="select_especialidad" class="form-select" onchange="filtrarDoctores()" required><option value="">Seleccione...</option></select></div>
+                            <div class="mb-3"><label class="small">Doctor Disponible</label><select id="select_doctor" class="form-select" disabled required><option value="">--</option></select></div>
+                            <div class="row g-2 mb-3"><div class="col-7"><label class="small">Fecha</label><input type="date" id="cita_fecha" class="form-control" required></div><div class="col-5"><label class="small">Hora</label><input type="time" id="cita_hora" class="form-control" required></div></div>
+                            <div class="mb-3"><label class="small">Motivo</label><textarea id="cita_motivo" class="form-control" rows="2" required></textarea></div>
+                            <button class="btn btn-action w-100">Agendar</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="card-custom">
+                        <h5 class="text-white mb-3">Historial de Solicitudes</h5>
+                        <div class="table-responsive"><table class="table table-custom align-middle"><thead><tr><th>Fecha</th><th>Doctor</th><th>Estado</th></tr></thead><tbody id="tabla-citas"><tr><td colspan="3">Cargando...</td></tr></tbody></table></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-telemedicina" style="display: none;">
+            <div class="card-custom">
+                <h4 class="text-white mb-2"><i class="bi bi-folder2-open me-2"></i>Carpeta Médica Digital</h4>
+                <div class="table-responsive"><table class="table table-custom align-middle"><thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Archivo</th></tr></thead><tbody id="tabla-archivos"><tr><td colspan="4">No hay documentos.</td></tr></tbody></table></div>
+            </div>
+        </div>
+
+        <div id="section-educacion" style="display: none;">
+            <div class="card-custom">
+                <h4 class="text-highlight mb-3"><i class="bi bi-lightbulb me-2"></i>Conceptos Fundamentales</h4>
+                <div class="row g-4">
+                    <div class="col-md-6"><h5 class="text-white">¿Qué es la Nefrología?</h5><p class="small opacity-75">Es la especialidad médica que se ocupa del estudio de la estructura y la función renal.</p></div>
+                    <div class="col-md-6"><h5 class="text-white">Enfermedad Renal Crónica</h5><p class="small opacity-75">Es la pérdida progresiva de la función renal con el paso del tiempo.</p></div>
+                </div>
+            </div>
+            <h4 class="text-white mb-4 mt-5">Recursos Multimedia</h4>
+            <div class="row g-4 mb-5">
+                <div class="col-md-6"><div class="video-card"><div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/0qgP_-JtTk4" allowfullscreen></iframe></div><div class="video-title">Nutrición Renal</div></div></div>
+                <div class="col-md-6"><div class="video-card"><div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/j_MQGFCDB28" allowfullscreen></iframe></div><div class="video-title">¿Qué es la CREATININA?</div></div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let todosLosDoctores = []; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('perfil', document.querySelector('.nav-link.active'));
+            cargarPerfil();
+            cargarDoctores(); 
+            cargarHistorialCitas();
+            cargarArchivosTelemedicina();
+        });
+
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            const overlay = document.getElementById('overlay');
+            overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function showSection(id, el) {
+            ['tablero','citas','telemedicina','educacion','perfil'].forEach(s => document.getElementById('section-'+s).style.display = 'none');
+            document.getElementById('section-'+id).style.display = 'block';
+            if(window.innerWidth <= 768) toggleMenu();
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            if(el) el.classList.add('active');
+        }
+
+        function cargarPerfil() {
+            fetch('/api/mi-perfil').then(r => r.json()).then(data => {
+                if(data.error) return window.location.href = '/login.html';
+
+                document.getElementById('welcome-name').innerText = data.nombre_completo;
+                document.getElementById('welcome-estadio').innerText = data.estadio_erc || 'Sin Estadio';
+                document.getElementById('p_nombre').value = data.nombre_completo;
+                document.getElementById('p_cedula').value = data.cedula; 
+                document.getElementById('p_email').value = data.email;
+                document.getElementById('p_direccion').value = data.direccion || 'No registrada';
+                document.getElementById('p_telefono').value = data.telefono || '';
+                document.getElementById('p_emergencia').value = data.contacto_emergencia || '';
+
+                let urea = data.urea || 0; 
+                let crea = data.creatinina || 0; 
+                
+                document.getElementById('val-urea').innerText = urea;
+                document.getElementById('val-crea').innerText = crea;
+                document.getElementById('bar-urea').style.width = Math.min((urea/100)*100, 100) + '%';
+                document.getElementById('bar-crea').style.width = Math.min((crea/5)*100, 100) + '%';
+
+                let estadio = data.estadio_erc || "Desconocido";
+                document.getElementById('val-tfg').innerText = estadio;
+                
+                // LÓGICA ACTUALIZADA PARA ALERTAS OSCURAS
+                let alerta = document.getElementById('alerta-salud');
+                if(estadio.includes('5')) {
+                    alerta.className = "alert alert-dark-danger p-3 rounded";
+                    alerta.innerHTML = '<h5 class="fw-bold"><i class="bi bi-exclamation-circle-fill me-2"></i>Estadio Crítico</h5><p class="m-0 small">Requiere control médico estricto y evaluación para terapia de reemplazo.</p>';
+                } else if (estadio.includes('3') || estadio.includes('4')) {
+                    alerta.className = "alert alert-dark-warning p-3 rounded";
+                    alerta.innerHTML = '<h5 class="fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Estadio Avanzado</h5><p class="m-0 small">Es necesario seguimiento constante y dieta rigurosa.</p>';
+                } else {
+                    // ESTE ES EL QUE PEDISTE ARREGLAR: FONDO VERDE OSCURO, LETRA CLARA
+                    alerta.className = "alert alert-dark-success p-3 rounded";
+                    alerta.innerHTML = '<h5 class="fw-bold"><i class="bi bi-check-circle-fill me-2"></i>Estable</h5><p class="m-0 small">Mantenga hábitos saludables y asista a sus controles regulares.</p>';
+                }
+            });
+        }
+
+        function cargarDoctores() {
+            fetch('/api/lista-doctores').then(r=>r.json()).then(docs => {
+                todosLosDoctores = docs;
+                const especialidadesPermitidas = ['Nefrólogo', 'Internista', 'Nutricionista', 'Psicólogo', 'Médico General'];
+                const cargos = [...new Set(docs.map(d => d.cargo).filter(c => especialidadesPermitidas.includes(c)))];
+                let html = '<option value="">Seleccione Especialidad...</option>';
+                cargos.forEach(c => { if(c) html += `<option value="${c}">${c}</option>`; });
+                document.getElementById('select_especialidad').innerHTML = html;
+            });
+        }
+
+        function filtrarDoctores() {
+            const especialidad = document.getElementById('select_especialidad').value;
+            const selectDoc = document.getElementById('select_doctor');
+            if(!especialidad) { selectDoc.innerHTML = '<option value="">Primero elija especialidad</option>'; selectDoc.disabled = true; return; }
+            const docsFiltrados = todosLosDoctores.filter(d => d.cargo === especialidad);
+            let html = '<option value="">Seleccione Doctor...</option>';
+            docsFiltrados.forEach(d => { html += `<option value="${d.id}">${d.nombre_completo}</option>`; });
+            selectDoc.innerHTML = html; selectDoc.disabled = false;
+        }
+
+        function pedirCita(e) {
+            e.preventDefault();
+            const body = { doctor_id: document.getElementById('select_doctor').value, fecha: document.getElementById('cita_fecha').value, hora: document.getElementById('cita_hora').value, motivo: document.getElementById('cita_motivo').value };
+            fetch('/api/pedir-cita', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) })
+            .then(r=>r.json()).then(res => {
+                if(res.success) { Swal.fire('Enviada', 'Solicitud pendiente', 'success'); e.target.reset(); cargarHistorialCitas(); }
+                else Swal.fire('Error', res.error, 'error');
+            });
+        }
+
+        function cargarHistorialCitas() {
+            fetch('/api/mis-citas').then(r=>r.json()).then(citas => {
+                let html = '';
+                citas.forEach(c => {
+                    let badge = c.estado==='Pendiente'?'bg-warning text-dark':'bg-success';
+                    html += `<tr><td>${new Date(c.fecha_hora).toLocaleDateString()}</td><td>${c.doctor}</td><td><span class="badge ${badge}">${c.estado}</span></td></tr>`;
+                });
+                document.getElementById('tabla-citas').innerHTML = html || '<tr><td colspan="3">Sin citas</td></tr>';
+            });
+        }
+
+        function cargarArchivosTelemedicina() {
+            fetch('/api/mis-archivos').then(r=>r.json()).then(archivos => {
+                let html = '';
+                archivos.forEach(a => {
+                    let link = a.ruta_archivo ? `<a href="${a.ruta_archivo}" target="_blank" class="btn btn-sm btn-action">Ver</a>` : '-';
+                    html += `<tr><td>${new Date(a.fecha_envio).toLocaleDateString()}</td><td>${a.tipo_archivo}</td><td>${a.descripcion || ''}</td><td>${link}</td></tr>`;
+                });
+                document.getElementById('tabla-archivos').innerHTML = html || '<tr><td colspan="4">Sin documentos.</td></tr>';
+            });
+        }
+
+        function actualizarDatos(e) {
+            e.preventDefault();
+            const body = { telefono: document.getElementById('p_telefono').value, emergencia: document.getElementById('p_emergencia').value };
+            fetch('/api/actualizar-mis-contactos', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) })
+            .then(r => r.json()).then(res => { if(res.success) Swal.fire('Éxito', 'Datos actualizados', 'success'); });
+        }
+    </script>
+</body>
+</html>

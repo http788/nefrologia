@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - SINEF HGC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --bg-body: #0a192f;
+            --bg-panel: #112240;
+            --text-white: #e6f1ff;
+            --accent-blue: #233554;
+            --highlight: #64ffda;
+            --danger: #ef4444;
+        }
+        body { background-color: var(--bg-body); color: var(--text-white); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, p, span, div, a, label, small, td, th, i, li, button, input, select, textarea { 
+            color: var(--text-white) !important; 
+        }
+        ::placeholder { color: #8892b0 !important; opacity: 0.7; }
+        .form-control, .form-select { background-color: #050d18 !important; border: 1px solid var(--accent-blue) !important; color: white !important; padding: 10px; }
+        .form-control:focus { border-color: var(--highlight) !important; box-shadow: 0 0 0 2px rgba(100, 255, 218, 0.1) !important; }
+        .sidebar { background: linear-gradient(180deg, #0d213f 0%, #020c1b 100%); min-height: 100vh; border-right: 1px solid var(--accent-blue); }
+        .nav-link { padding: 12px 20px; margin: 4px 0; transition: 0.3s; border-radius: 0 30px 30px 0; border-left: 4px solid transparent; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(100, 255, 218, 0.1); border-left-color: var(--text-white); }
+        .table-custom { background-color: var(--bg-panel) !important; border-radius: 8px; overflow: hidden; }
+        .table-custom th { background-color: #152a4a !important; border-bottom: 2px solid var(--accent-blue); padding: 15px; }
+        .table-custom td { border-bottom: 1px solid var(--accent-blue); padding: 12px; vertical-align: middle; background-color: var(--bg-panel) !important; }
+        .table-hover tbody tr:hover td { background-color: #1d3557 !important; }
+        .modal-content { background-color: var(--bg-panel); border: 1px solid var(--accent-blue); }
+        .btn-blue { background: #172a45; border: 1px solid var(--highlight); color: var(--highlight) !important; font-weight: 600; }
+        .btn-blue:hover { background: rgba(100, 255, 218, 0.1); }
+        .btn-danger-3d { background: linear-gradient(145deg, #dc2626, #991b1b); border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .action-btn { cursor: pointer; transition: 0.2s; margin: 0 5px; font-size: 1.1rem; }
+        .swal2-popup { background: var(--bg-panel) !important; border: 1px solid var(--accent-blue); }
+        
+        /* --- ESTILOS PARA VISTA MÓVIL (Responsive) --- */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%; /* Oculto a la izquierda */
+                height: 100vh;
+                width: 250px;
+                z-index: 1050; /* Por encima de todo */
+                transition: 0.3s ease-in-out;
+                box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            }
+            
+            .sidebar.show {
+                left: 0; /* Mostrar */
+            }
+
+            /* Fondo oscuro al abrir menú */
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.7);
+                z-index: 1040;
+            }
+            .overlay.show { display: block; }
+        }
+
+        /* Botón Hamburguesa (Solo visible en móvil) */
+        .mobile-nav {
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--accent-blue);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        @media (min-width: 769px) {
+            .mobile-nav { display: none; } /* Ocultar en PC */
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-nav d-md-none">
+    <button class="btn btn-outline-light border-0" onclick="toggleMenu()">
+        <i class="bi bi-list fs-1"></i>
+    </button>
+    <h5 class="m-0 fw-bold text-info">SINEF HGC</h5>
+    <img src="logo_hospital.png" width="30" alt="Logo">
+</div>
+
+<div class="overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-3">
+            <div class="text-center mb-4 pt-3 pb-3 border-bottom border-secondary">
+                <i class="bi bi-hospital-fill fs-1 text-white"></i>
+                <h5 class="fw-bold mt-2 text-white">SINEF HGC</h5>
+                <small>ADMINISTRACIÓN</small>
+            </div>
+            <ul class="nav flex-column gap-1">
+                <li class="nav-item"><a class="nav-link active" href="#" onclick="showSection('estadisticas', this); toggleMenu()"><i class="bi bi-bar-chart-fill"></i> Estadísticas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('registro-paciente', this); toggleMenu()"><i class="bi bi-person-plus-fill"></i> Agregar Pacientes</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('lista-pacientes', this); toggleMenu()"><i class="bi bi-list-ul"></i> Lista de Pacientes</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('recetas', this); toggleMenu()"><i class="bi bi-send-fill"></i> Enviar Recetas</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('nuevo-personal', this); toggleMenu()"><i class="bi bi-person-badge-fill"></i> Agregar Personal</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('lista-personal', this); toggleMenu()"><i class="bi bi-card-list"></i> Lista de Personal</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('inventario', this); toggleMenu()"><i class="bi bi-box-seam-fill"></i> Inventario</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('configuracion', this); toggleMenu()"><i class="bi bi-gear-fill"></i> Configuración</a></li>
+                <li class="nav-item mt-5 pt-3 border-top border-secondary"><a class="nav-link text-danger" href="/logout"><i class="bi bi-box-arrow-left"></i> Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+
+            <div id="estadisticas-section">
+                <div class="d-flex justify-content-between mb-4"><h3 class="fw-light">Tablero de Control</h3><button class="btn btn-sm btn-blue" onclick="cargarDatosEstadisticos()">Actualizar</button></div>
+                <div class="row g-3 text-center">
+                    <div class="col"><div class="p-3 rounded border border-success bg-dark" onclick="filtrarPorEstadia(1)" style="cursor:pointer"><h5 class="text-success">Estadía 1</h5><h2 id="stat-e1">0</h2></div></div>
+                    <div class="col"><div class="p-3 rounded border border-success bg-dark" onclick="filtrarPorEstadia(2)" style="cursor:pointer"><h5 class="text-success">Estadía 2</h5><h2 id="stat-e2">0</h2></div></div>
+                    <div class="col"><div class="p-3 rounded border border-warning bg-dark" onclick="filtrarPorEstadia(3)" style="cursor:pointer"><h5 class="text-warning">Estadía 3</h5><h2 id="stat-e3">0</h2></div></div>
+                    <div class="col"><div class="p-3 rounded border border-danger bg-dark" onclick="filtrarPorEstadia(4)" style="cursor:pointer"><h5 class="text-danger">Estadía 4</h5><h2 id="stat-e4">0</h2></div></div>
+                    <div class="col"><div class="p-3 rounded border border-white bg-danger" onclick="filtrarPorEstadia(5)" style="cursor:pointer"><h5 class="text-white">Estadía 5</h5><h2 id="stat-e5">0</h2></div></div>
+                </div>
+                <div id="tabla-filtrada-container" style="display:none;" class="mt-4"><h5 class="text-info">Detalle Filtrado</h5><div class="table-responsive"><table class="table table-custom table-hover"><thead><tr><th>Paciente</th><th>Cédula</th><th>Sexo</th><th>Teléfono</th></tr></thead><tbody id="body-filtro"></tbody></table></div></div>
+            </div>
+
+            <div id="registro-paciente-section" style="display:none;">
+                <h3>Ficha de Ingreso</h3>
+                <div class="p-4 rounded" style="background-color: var(--bg-panel);">
+                    <form onsubmit="registrarPaciente(event)" autocomplete="off">
+                        <h5 class="text-info border-bottom pb-2 mb-3">1. Datos Personales</h5>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4"><label>Nombre</label><input type="text" class="form-control" name="nombre" required></div>
+                            <div class="col-md-4"><label>Cédula</label><input type="text" class="form-control" name="cedula" required></div>
+                            <div class="col-md-4"><label>Sexo</label><select class="form-select" name="sexo" id="inputSexo" onchange="calcularEstadioAutomatico()" required><option>Masculino</option><option>Femenino</option></select></div>
+                            <div class="col-md-4"><label>Nacimiento</label><input type="date" class="form-control" name="fecha_nacimiento" required></div>
+                            <div class="col-md-4"><label>Email</label><input type="email" class="form-control" name="email" required></div>
+                            <div class="col-md-4"><label>Contraseña</label><input type="password" class="form-control" name="password" required></div>
+                        </div>
+                        <h5 class="text-info border-bottom pb-2 mb-3">2. Contacto</h5>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4"><label>Teléfono</label><input type="tel" class="form-control" name="telefono"></div>
+                            <div class="col-md-8"><label>Dirección</label><input type="text" class="form-control" name="direccion"></div>
+                            <div class="col-12"><label>Contacto Emergencia</label><input type="text" class="form-control" name="contacto_emergencia"></div>
+                        </div>
+                        <div class="p-4 mb-4 rounded border border-white bg-dark">
+                            <h5 class="text-white mb-3"><i class="bi bi-cpu-fill text-warning"></i> Sistema Experto Nefrológico</h5>
+                            <div class="row g-3">
+                                <div class="col-md-3"><label>Edad</label><input type="number" class="form-control" id="inputEdad" oninput="calcularEstadioAutomatico()" required></div>
+                                <div class="col-md-3"><label>Urea</label><input type="number" step="0.01" class="form-control" name="urea" required></div>
+                                <div class="col-md-3"><label>Creatinina</label><input type="number" step="0.01" class="form-control" name="creatinina" id="inputCreatinina" oninput="calcularEstadioAutomatico()" required></div>
+                                <div class="col-md-3"><label>Estadía</label><input type="text" class="form-control fw-bold text-center bg-dark text-info" name="estadio" id="inputEstadio" readonly></div>
+                                <div class="col-12"><small id="resultadoTFG" class="text-info fst-italic">El sistema calcula la TFG automáticamente...</small></div>
+                            </div>
+                        </div>
+                        <div class="mb-3"><label>Comorbilidades</label><textarea class="form-control" name="comorbilidades" rows="2"></textarea></div>
+                        <button class="btn btn-blue w-100 py-3">GUARDAR FICHA</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="lista-pacientes-section" style="display:none;">
+                <div class="d-flex justify-content-between mb-4"><h3>Base de Datos</h3><input type="text" class="form-control w-50" id="busqPac" onkeyup="buscar('busqPac','tabla-pac')" placeholder="Buscar..."></div>
+                <div class="table-responsive"><table class="table table-custom table-hover"><thead><tr><th>Paciente</th><th>Cédula</th><th>Estadía</th><th>Acciones</th></tr></thead><tbody id="tabla-pac"></tbody></table></div>
+            </div>
+
+            <div id="recetas-section" style="display:none;">
+                <h3>Enviar Recetas</h3>
+                <div class="p-4 rounded mb-4" style="background-color: var(--bg-panel);">
+                    <form action="/api/enviar-receta" method="POST" enctype="multipart/form-data" autocomplete="off">
+                        <div class="row g-3">
+                            <div class="col-md-6"><label>Paciente</label><select class="form-select" id="select-pac-receta" name="paciente_id"><option>Cargando...</option></select></div>
+                            <div class="col-md-6"><label>Tipo</label><select class="form-select" name="tipo"><option value="imagen">Imagen</option><option value="video">Video</option></select></div>
+                            <div class="col-12"><label>Descripción</label><textarea class="form-control" name="descripcion" rows="3"></textarea></div>
+                            <div class="col-12"><label>Archivo</label><input type="file" class="form-control" name="archivo" required></div>
+                            <div class="col-12"><button class="btn btn-blue w-100">Enviar</button></div>
+                        </div>
+                    </form>
+                </div>
+                
+                <h4 class="mt-5 mb-3">Historial de Envíos</h4>
+                <div class="table-responsive">
+                    <table class="table table-custom table-hover">
+                        <thead><tr><th>Fecha/Hora</th><th>Paciente</th><th>Tipo</th><th>Descripción</th><th>Archivo</th></tr></thead>
+                        <tbody id="tabla-historial-recetas">
+                            <tr><td colspan="5" class="text-center">Cargando historial...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="nuevo-personal-section" style="display:none;">
+                <h3>Registro de Personal</h3>
+                <div class="p-4 rounded mt-3" style="background-color: var(--bg-panel);">
+                    <form onsubmit="registrarPersonal(event)" autocomplete="off">
+                        <div class="row g-3">
+                            <div class="col-md-6"><label>Nombre</label><input type="text" class="form-control" name="nombre" required></div>
+                            <div class="col-md-6"><label>Cédula</label><input type="text" class="form-control" name="cedula" required></div>
+                            <div class="col-md-4"><label>Nacimiento</label><input type="date" class="form-control" name="fecha_nacimiento" required></div>
+                            <div class="col-md-4"><label>Teléfono</label><input type="tel" class="form-control" name="telefono" required></div>
+                            <div class="col-md-4"><label>Horario</label><input type="text" class="form-control" name="horario" required></div>
+                            <div class="col-md-6"><label>Cargo</label><select class="form-select" name="cargo" id="selectCargo" onchange="verificarCargo()" required><option>Nefrólogo</option><option>Enfermera</option><option>Tecnico</option><option>Administrativo</option></select></div>
+                            <div class="col-md-6"><label>Email</label><input type="email" class="form-control" name="email" required></div>
+                            <div class="col-12" id="password-container" style="display:none;"><div class="p-3 border border-secondary rounded bg-dark"><label class="text-warning mb-2">Contraseña (Solo Doctores)</label><input type="password" class="form-control" name="password"></div></div>
+                        </div>
+                        <div class="mt-4"><button class="btn btn-blue w-100">Registrar Personal</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="lista-personal-section" style="display:none;">
+                <div class="d-flex justify-content-between mb-3"><h3>Nómina</h3><input type="text" class="form-control w-50" id="busqPers" onkeyup="buscar('busqPers','tabla-pers')" placeholder="Buscar..."></div>
+                <div class="table-responsive"><table class="table table-custom table-hover"><thead><tr><th>Nombre</th><th>Cédula</th><th>Cargo</th><th>Teléfono</th><th>Horario</th><th>Acciones</th></tr></thead><tbody id="tabla-pers"></tbody></table></div>
+            </div>
+
+            <div id="inventario-section" style="display:none;">
+                <div class="d-flex justify-content-between mb-3"><h3>Inventario</h3><button class="btn btn-blue" data-bs-toggle="modal" data-bs-target="#modalEquipo">+ Equipo</button></div>
+                <div class="table-responsive"><table class="table table-custom table-hover"><thead><tr><th>Equipo</th><th>Serial</th><th>Ubicación</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tabla-inv"></tbody></table></div>
+            </div>
+
+            <div id="configuracion-section" style="display:none;">
+                <h3>Configuración del Sistema</h3>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded h-100" style="background-color: var(--bg-panel);">
+                            <h5 class="text-info mb-3"><i class="bi bi-building"></i> Institución</h5>
+                            <div class="mb-3">
+                                <label>Nombre del Hospital</label>
+                                <input type="text" class="form-control" value="Hospital General Dr. Adolfo D'Empaire" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label>Ubicación</label>
+                                <input type="text" class="form-control" value="Cabimas, Estado Zulia" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mt-3 mt-md-0">
+                        <div class="p-4 rounded border border-secondary" style="background-color: var(--bg-panel);">
+                            <h5 class="text-warning mb-3"><i class="bi bi-shield-lock-fill"></i> Seguridad</h5>
+                            <form onsubmit="actualizarPassword(event)" autocomplete="off">
+                                <div class="mb-2">
+                                    <label>Tu Correo Electrónico</label>
+                                    <input type="email" id="conf_email" class="form-control" placeholder="Confirma tu correo" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label>Contraseña Actual</label>
+                                    <input type="password" id="conf_pass_old" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Nueva Contraseña</label>
+                                    <input type="password" id="conf_pass_new" class="form-control" minlength="6" required>
+                                </div>
+                                <button class="btn btn-blue w-100">Actualizar Contraseña</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVerPaciente" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title text-white">Información del Paciente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 border-end border-secondary">
+                        <h6 class="text-uppercase text-white mb-3">Filiación</h6>
+                        <p><strong>Nombre:</strong> <span id="ver_nom"></span></p>
+                        <p><strong>Cédula:</strong> <span id="ver_ced"></span></p>
+                        <p><strong>Estadía:</strong> <span id="ver_est" class="text-warning fw-bold"></span></p>
+                        <hr>
+                        <h6 class="text-uppercase text-white mb-3">Contacto</h6>
+                        <p><strong>Teléfono:</strong> <span id="ver_tel"></span></p>
+                        <p><strong>Dirección:</strong> <span id="ver_dir"></span></p>
+                        <p><strong>Emergencia:</strong> <span id="ver_emer" class="text-danger fw-bold fs-5"></span></p>
+                    </div>
+                    <div class="col-md-6 ps-4">
+                        <h6 class="text-uppercase text-white mb-3">Clínica</h6>
+                        <div class="p-2 bg-dark rounded mb-3 border border-secondary">
+                            <p class="mb-1"><strong>Urea:</strong> <span id="ver_urea" class="text-info"></span> mg/dL</p>
+                            <p class="mb-0"><strong>Creatinina:</strong> <span id="ver_crea" class="text-info"></span> mg/dL</p>
+                        </div>
+                        <h6 class="text-uppercase text-white mb-3">Seguimiento</h6>
+                        <p><strong>Próxima Cita:</strong> <span id="ver_cita" class="badge bg-primary fs-6"></span></p>
+                        <p><strong>Comorbilidades:</strong> <span id="ver_como"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarPers" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title text-white">Editar Personal</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="edit_id_pers">
+                <label>Nombre</label><input type="text" class="form-control mb-2" id="edit_nom_pers">
+                <label>Cédula</label><input type="text" class="form-control mb-2" id="edit_ced_pers">
+                <label>Email</label><input type="email" class="form-control mb-2" id="edit_email_pers">
+                <label>Cargo</label><input type="text" class="form-control mb-2" id="edit_car_pers">
+                <label>Horario</label><input type="text" class="form-control mb-2" id="edit_hor_pers">
+                <label>Teléfono</label><input type="text" class="form-control mb-2" id="edit_tel_pers">
+                <label>Nacimiento</label><input type="date" class="form-control mb-2" id="edit_nac_pers">
+                <button class="btn btn-blue w-100 mt-3" onclick="guardarEditPers()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEditarPac" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title text-white">Editar Paciente</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="edit_id_pac">
+                
+                <h6 class="text-info border-bottom pb-2 mb-3">Datos de Cuenta</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label>Nombre Completo</label>
+                        <input type="text" class="form-control" id="edit_nom_pac">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Email (Usuario)</label> <input type="email" class="form-control" id="edit_email_pac">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Cédula</label>
+                        <input type="text" class="form-control" id="edit_ced_pac">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Fecha Nacimiento</label>
+                        <input type="date" class="form-control" id="edit_nac_pac">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Sexo</label>
+                        <select class="form-select" id="edit_sexo_pac">
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h6 class="text-info border-bottom pb-2 mb-3">Contacto</h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6"><label>Teléfono</label><input type="text" class="form-control" id="edit_tel_pac"></div>
+                    <div class="col-md-6"><label>Emergencia</label><input type="text" class="form-control" id="edit_eme_pac"></div>
+                    <div class="col-12"><label>Dirección</label><input type="text" class="form-control" id="edit_dir_pac"></div>
+                </div>
+
+                <h6 class="text-info border-bottom pb-2 mb-3">Datos Clínicos</h6>
+                <div class="row g-3">
+                    <div class="col-md-4"><label>Urea</label><input type="number" step="0.01" class="form-control" id="edit_urea_pac"></div>
+                    <div class="col-md-4"><label>Creatinina</label><input type="number" step="0.01" class="form-control" id="edit_crea_pac"></div>
+                    <div class="col-md-4"><label>Estadía</label><input type="text" class="form-control fw-bold text-warning" id="edit_est_pac"></div>
+                    <div class="col-12"><label>Comorbilidades</label><textarea class="form-control" id="edit_com_pac" rows="2"></textarea></div>
+                </div>
+
+                <button class="btn btn-blue w-100 mt-4" onclick="guardarEditPac()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalEditarInv" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title text-white">Editar Equipo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <input type="hidden" id="edit_id_inv">
+                <label>Nombre</label><input type="text" class="form-control mb-2" id="edit_nom_inv">
+                <label>Ubicación</label><input type="text" class="form-control mb-2" id="edit_ubi_inv">
+                <label>Estado</label><select class="form-select" id="edit_est_inv"><option>Operativo</option><option>Dañado</option></select>
+                <button class="btn btn-blue w-100 mt-3" onclick="guardarEditInv()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalEquipo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header"><h5 class="modal-title text-white">Registrar Equipo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <form onsubmit="registrarEquipo(event)" autocomplete="off">
+                    <div class="mb-2"><label>Nombre</label><input type="text" class="form-control" name="nombre" required></div>
+                    <div class="mb-2"><label>Serial</label><input type="text" class="form-control" name="serial" required></div>
+                    <div class="mb-2"><label>Ubicación</label><input type="text" class="form-control" name="ubicacion"></div>
+                    <div class="mb-3"><label>Estado</label><select class="form-select" name="estado"><option>Operativo</option><option>Dañado</option></select></div>
+                    <button class="btn btn-blue w-100">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVerPersonal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-dark border-bottom border-secondary">
+                <h5 class="modal-title text-info"><i class="bi bi-person-badge"></i> Ficha del Colaborador</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <h4 id="v_p_nombre" class="fw-bold text-white mb-0"></h4>
+                    <span id="v_p_cargo" class="badge bg-warning text-dark"></span>
+                </div>
+                
+                <ul class="list-group list-group-flush rounded">
+                    <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                        <span><i class="bi bi-card-heading text-secondary me-2"></i> Cédula:</span>
+                        <strong id="v_p_cedula"></strong>
+                    </li>
+                    <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                        <span><i class="bi bi-envelope text-secondary me-2"></i> Email:</span>
+                        <strong id="v_p_email"></strong>
+                    </li>
+                    <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                        <span><i class="bi bi-telephone text-secondary me-2"></i> Teléfono:</span>
+                        <strong id="v_p_telefono"></strong>
+                    </li>
+                    <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                        <span><i class="bi bi-clock text-secondary me-2"></i> Horario:</span>
+                        <strong id="v_p_horario" class="text-info"></strong>
+                    </li>
+                    <li class="list-group-item bg-transparent text-white border-secondary d-flex justify-content-between">
+                        <span><i class="bi bi-calendar-event text-secondary me-2"></i> Nacimiento:</span>
+                        <strong id="v_p_nac"></strong>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let dataPacientes=[], dataPersonal=[], dataInventario=[];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarDatosEstadisticos();
+        cargarPersonal();
+        cargarInventario();
+        cargarHistorialRecetas(); 
+    });
+
+    // FUNCIONES MENU MÓVIL
+    function toggleMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        
+        if (sidebar.classList.contains('show')) {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        } else {
+            sidebar.classList.add('show');
+            overlay.classList.add('show');
+        }
+    }
+
+    function showSection(id, el) {
+        const sections = ['estadisticas','registro-paciente','lista-pacientes','recetas','nuevo-personal','lista-personal','inventario','configuracion'];
+        sections.forEach(s => document.getElementById(s+'-section').style.display='none');
+        document.getElementById(id+'-section').style.display='block';
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        if(el) el.classList.add('active');
+        
+        if(id === 'recetas') cargarHistorialRecetas();
+    }
+
+    function verificarCargo() {
+        const cargo = document.getElementById('selectCargo').value;
+        const pass = document.getElementById('password-container');
+        const docs = ['Nefrólogo', 'Internista', 'Nutricionista', 'Psicólogo'];
+        if (docs.includes(cargo)) {
+            pass.style.display = 'block';
+            document.querySelector('input[name="password"]').setAttribute('required', 'true');
+        } else {
+            pass.style.display = 'none';
+            document.querySelector('input[name="password"]').removeAttribute('required');
+        }
+    }
+
+    // AJAX (SIN RECARGA)
+    function registrarPaciente(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        fetch('/register-patient', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
+        .then(r => r.json()).then(res => {
+            if(res.success) { Swal.fire('Éxito', 'Paciente registrado', 'success'); e.target.reset(); cargarDatosEstadisticos(); }
+            else Swal.fire('Error', res.error, 'error');
+        });
+    }
+
+    function registrarPersonal(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        fetch('/register-staff', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
+        .then(r => r.json()).then(res => {
+            if(res.success) { Swal.fire('Éxito', 'Personal registrado', 'success'); e.target.reset(); cargarPersonal(); }
+            else Swal.fire('Error', res.error, 'error');
+        });
+    }
+
+    function registrarEquipo(e) {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        fetch('/register-equipment', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) })
+        .then(r => r.json()).then(res => {
+            if(res.success) { 
+                Swal.fire('Éxito', 'Equipo guardado', 'success'); 
+                e.target.reset(); 
+                bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide();
+                cargarInventario();
+            }
+            else Swal.fire('Error', res.error, 'error');
+        });
+    }
+
+    function actualizarPassword(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('conf_email').value;
+        const passOld = document.getElementById('conf_pass_old').value;
+        const passNew = document.getElementById('conf_pass_new').value;
+
+        fetch('/api/cambiar-password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                email: email, 
+                passwordActual: passOld, 
+                passwordNueva: passNew 
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) {
+                Swal.fire('Éxito', 'Contraseña actualizada correctamente', 'success');
+                e.target.reset(); 
+            } else {
+                Swal.fire('Error', res.error || 'No se pudo actualizar', 'error');
+            }
+        })
+        .catch(err => Swal.fire('Error', 'Fallo de conexión', 'error'));
+    }
+
+    // CARGAS
+    function cargarHistorialRecetas() {
+        fetch('/api/historial-archivos').then(r=>r.json()).then(d => {
+            let html = '';
+            d.forEach(h => {
+                let fecha = new Date(h.fecha_envio).toLocaleString();
+                let btn = h.ruta_archivo ? `<a href="${h.ruta_archivo}" target="_blank" class="btn btn-sm btn-blue">Ver</a>` : '-';
+                html += `<tr><td>${fecha}</td><td>${h.paciente_nombre}</td><td>${h.tipo_archivo}</td><td>${h.descripcion||'-'}</td><td>${btn}</td></tr>`;
+            });
+            document.getElementById('tabla-historial-recetas').innerHTML = html || '<tr><td colspan="5" class="text-center">Sin envíos</td></tr>';
+        });
+    }
+
+    function cargarDatosEstadisticos() {
+        fetch('/api/pacientes-lista').then(r=>r.json()).then(d => {
+            dataPacientes = d;
+            let html = '', sel = '<option>Seleccionar...</option>';
+            let c = {1:0, 2:0, 3:0, 4:0, 5:0};
+            d.forEach(p => {
+                if(p.estadio_erc) {
+                    if(p.estadio_erc.includes('1')) c[1]++; else if(p.estadio_erc.includes('2')) c[2]++;
+                    else if(p.estadio_erc.includes('3')) c[3]++; else if(p.estadio_erc.includes('4')) c[4]++;
+                    else if(p.estadio_erc.includes('5')) c[5]++;
+                }
+                html += `<tr><td>${p.nombre_completo}</td><td>${p.cedula}</td><td><span class="badge ${p.estadio_erc.includes('5')?'bg-danger':'bg-primary'}">${p.estadio_erc}</span></td>
+                <td><i class="bi bi-eye-fill action-btn text-info" onclick="verPaciente(${p.id})"></i>
+                <i class="bi bi-pencil-square action-btn text-warning" onclick="editarPac(${p.id})"></i>
+                <i class="bi bi-trash-fill action-btn text-danger" onclick="borrar('paciente',${p.id})"></i></td></tr>`;
+                sel += `<option value="${p.id}">${p.nombre_completo}</option>`;
+            });
+            document.getElementById('tabla-pac').innerHTML = html;
+            document.getElementById('select-pac-receta').innerHTML = sel;
+            for(let i=1; i<=5; i++) document.getElementById(`stat-e${i}`).innerText = c[i];
+        });
+    }
+
+    function cargarPersonal() {
+        fetch('/api/personal-lista').then(r=>r.json()).then(d => {
+            dataPersonal = d;
+            let html = '';
+            d.forEach(u => {
+                html += `<tr>
+                    <td>${u.nombre_completo}</td>
+                    <td>${u.cedula||'-'}</td>
+                    <td><span class="badge bg-info text-dark">${u.cargo||'-'}</span></td>
+                    <td>${u.telefono||'-'}</td>
+                    <td>${u.horario||'-'}</td>
+                    <td>
+                        <i class="bi bi-eye-fill action-btn text-info" onclick="verPers(${u.id})" title="Ver Detalle"></i>
+                        <i class="bi bi-pencil-square action-btn text-warning" onclick="editarPers(${u.id})" title="Editar"></i>
+                        <i class="bi bi-trash-fill action-btn text-danger" onclick="borrar('personal',${u.id})" title="Eliminar"></i>
+                    </td>
+                </tr>`;
+            });
+            document.getElementById('tabla-pers').innerHTML = html;
+        });
+    }
+
+    function cargarInventario() {
+        fetch('/api/inventario-lista').then(r=>r.json()).then(d => {
+            dataInventario = d;
+            let html = '';
+            d.forEach(e => {
+                let color = e.estado==='Operativo'?'text-success':'text-danger';
+                html += `<tr><td>${e.nombre}</td><td>${e.serial}</td><td>${e.ubicacion}</td><td class="${color}">${e.estado}</td>
+                <td><i class="bi bi-pencil-square action-btn text-warning" onclick="editarInv(${e.id})"></i>
+                <i class="bi bi-trash-fill action-btn text-danger" onclick="borrar('inventario',${e.id})"></i></td></tr>`;
+            });
+            document.getElementById('tabla-inv').innerHTML = html;
+        });
+    }
+
+    // MODALES DE EDICIÓN & VER
+    function verPaciente(id) {
+        let p = dataPacientes.find(x => x.id == id);
+        document.getElementById('ver_nom').innerText = p.nombre_completo;
+        document.getElementById('ver_ced').innerText = p.cedula;
+        document.getElementById('ver_est').innerText = p.estadio_erc;
+        document.getElementById('ver_tel').innerText = p.telefono || '-';
+        document.getElementById('ver_dir').innerText = p.direccion || '-';
+        document.getElementById('ver_emer').innerText = p.contacto_emergencia || 'No registrado';
+        document.getElementById('ver_urea').innerText = p.urea || '-';
+        document.getElementById('ver_crea').innerText = p.creatinina || '-';
+        document.getElementById('ver_como').innerText = p.comorbilidades || '-';
+        let cita = p.proxima_cita ? new Date(p.proxima_cita).toLocaleString() : "Sin citas";
+        document.getElementById('ver_cita').innerText = cita;
+        new bootstrap.Modal(document.getElementById('modalVerPaciente')).show();
+    }
+
+    // --- EDICIÓN PACIENTES (CORREGIDA: ENVÍA EMAIL) ---
+    function editarPac(id) {
+        let p = dataPacientes.find(x => x.id == id);
+        
+        document.getElementById('edit_id_pac').value = p.id;
+        document.getElementById('edit_nom_pac').value = p.nombre_completo;
+        document.getElementById('edit_email_pac').value = p.email; // CORRECCIÓN: Carga email
+        document.getElementById('edit_ced_pac').value = p.cedula;
+        
+        if(p.fecha_nacimiento) {
+            document.getElementById('edit_nac_pac').value = p.fecha_nacimiento.split('T')[0];
+        }
+        
+        document.getElementById('edit_sexo_pac').value = p.sexo;
+        document.getElementById('edit_tel_pac').value = p.telefono;
+        document.getElementById('edit_eme_pac').value = p.contacto_emergencia;
+        document.getElementById('edit_dir_pac').value = p.direccion;
+        document.getElementById('edit_urea_pac').value = p.urea;
+        document.getElementById('edit_crea_pac').value = p.creatinina;
+        document.getElementById('edit_est_pac').value = p.estadio_erc;
+        document.getElementById('edit_com_pac').value = p.comorbilidades;
+
+        new bootstrap.Modal(document.getElementById('modalEditarPac')).show();
+    }
+
+    function guardarEditPac() {
+        let id = document.getElementById('edit_id_pac').value;
+        
+        let body = { 
+            nombre: document.getElementById('edit_nom_pac').value,
+            email: document.getElementById('edit_email_pac').value, // CORRECCIÓN: Envía email
+            cedula: document.getElementById('edit_ced_pac').value,
+            fecha_nacimiento: document.getElementById('edit_nac_pac').value,
+            sexo: document.getElementById('edit_sexo_pac').value,
+            telefono: document.getElementById('edit_tel_pac').value,
+            direccion: document.getElementById('edit_dir_pac').value,
+            emergencia: document.getElementById('edit_eme_pac').value,
+            urea: document.getElementById('edit_urea_pac').value,
+            creatinina: document.getElementById('edit_crea_pac').value,
+            estadio: document.getElementById('edit_est_pac').value,
+            comorbilidades: document.getElementById('edit_com_pac').value
+        };
+
+        fetch(`/api/paciente/${id}`, { 
+            method: 'PUT', 
+            headers: {'Content-Type':'application/json'}, 
+            body: JSON.stringify(body) 
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) {
+                Swal.fire('Actualizado', 'Información guardada correctamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarPac')).hide();
+                cargarDatosEstadisticos(); 
+            } else {
+                Swal.fire('Error', 'No se pudo actualizar: ' + (res.error || 'Error desconocido'), 'error');
+            }
+        });
+    }
+
+    // --- EDICIÓN INVENTARIO ---
+    function editarInv(id) {
+        let e = dataInventario.find(x => x.id == id);
+        document.getElementById('edit_id_inv').value = e.id;
+        document.getElementById('edit_nom_inv').value = e.nombre;
+        document.getElementById('edit_ubi_inv').value = e.ubicacion;
+        document.getElementById('edit_est_inv').value = e.estado;
+        new bootstrap.Modal(document.getElementById('modalEditarInv')).show();
+    }
+
+    function guardarEditInv() {
+        let id = document.getElementById('edit_id_inv').value;
+        let body = { 
+            nombre: document.getElementById('edit_nom_inv').value,
+            ubicacion: document.getElementById('edit_ubi_inv').value,
+            estado: document.getElementById('edit_est_inv').value,
+            serial: dataInventario.find(x=>x.id==id).serial 
+        };
+        fetch(`/api/inventario/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) })
+        .then(r=>r.json()).then(res => {
+            if(res.success) { Swal.fire('Actualizado','','success'); bootstrap.Modal.getInstance(document.getElementById('modalEditarInv')).hide(); cargarInventario(); }
+            else Swal.fire('Error','','error');
+        });
+    }
+
+    // --- GESTIÓN PERSONAL (FALTANTE RESTAURADO) ---
+    function editarPers(id) {
+        let u = dataPersonal.find(x => x.id == id);
+        if(u) {
+            document.getElementById('edit_id_pers').value = u.id;
+            document.getElementById('edit_nom_pers').value = u.nombre_completo;
+            document.getElementById('edit_ced_pers').value = u.cedula || '';
+            document.getElementById('edit_email_pers').value = u.email;
+            document.getElementById('edit_car_pers').value = u.cargo || '';
+            document.getElementById('edit_hor_pers').value = u.horario || '';
+            document.getElementById('edit_tel_pers').value = u.telefono || '';
+            
+            if(u.fecha_nacimiento) {
+                document.getElementById('edit_nac_pers').value = u.fecha_nacimiento.split('T')[0];
+            }
+
+            new bootstrap.Modal(document.getElementById('modalEditarPers')).show();
+        }
+    }
+
+    function guardarEditPers() {
+        let id = document.getElementById('edit_id_pers').value;
+        let body = { 
+            nombre: document.getElementById('edit_nom_pers').value,
+            cedula: document.getElementById('edit_ced_pers').value,
+            email: document.getElementById('edit_email_pers').value,
+            fecha_nacimiento: document.getElementById('edit_nac_pers').value,
+            cargo: document.getElementById('edit_car_pers').value,
+            horario: document.getElementById('edit_hor_pers').value,
+            telefono: document.getElementById('edit_tel_pers').value
+        };
+
+        fetch(`/api/personal/${id}`, { 
+            method: 'PUT', 
+            headers: {'Content-Type':'application/json'}, 
+            body: JSON.stringify(body) 
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.success) {
+                Swal.fire('Actualizado', 'Personal modificado con éxito', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarPers')).hide();
+                cargarPersonal(); 
+            } else {
+                Swal.fire('Error', 'No se pudo actualizar', 'error');
+            }
+        });
+    }
+
+    function verPers(id) {
+        let u = dataPersonal.find(x => x.id == id);
+        if(u) {
+            document.getElementById('v_p_nombre').innerText = u.nombre_completo;
+            document.getElementById('v_p_cargo').innerText = u.cargo;
+            document.getElementById('v_p_cedula').innerText = u.cedula || '-';
+            document.getElementById('v_p_email').innerText = u.email;
+            document.getElementById('v_p_telefono').innerText = u.telefono || '-';
+            document.getElementById('v_p_horario').innerText = u.horario || '-';
+            
+            let nacimiento = u.fecha_nacimiento ? new Date(u.fecha_nacimiento).toLocaleDateString() : '-';
+            document.getElementById('v_p_nac').innerText = nacimiento;
+
+            new bootstrap.Modal(document.getElementById('modalVerPersonal')).show();
+        }
+    }
+
+    // BORRAR COMÚN
+    function borrar(tipo, id) {
+        Swal.fire({ title: '¿Borrar?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí' }).then((res) => {
+            if (res.isConfirmed) {
+                fetch(`/api/${tipo}/${id}`, { method: 'DELETE' }).then(() => {
+                    Swal.fire('Borrado', '', 'success');
+                    if(tipo==='paciente') cargarDatosEstadisticos();
+                    if(tipo==='personal') cargarPersonal();
+                    if(tipo==='inventario') cargarInventario();
+                });
+            }
+        });
+    }
+
+    function calcularEstadioAutomatico() {
+        let edad = document.getElementById('inputEdad').value;
+        let crea = document.getElementById('inputCreatinina').value;
+        let sexo = document.getElementById('inputSexo').value;
+        let out = document.getElementById('inputEstadio');
+        let txt = document.getElementById('resultadoTFG');
+        if(edad && crea) {
+            let factor = (sexo === 'Femenino') ? 0.742 : 1;
+            let tfg = 186 * Math.pow(crea, -1.154) * Math.pow(edad, -0.203) * factor;
+            txt.innerHTML = `El sistema calcula la TFG: <strong>${tfg.toFixed(1)} mL/min</strong>`;
+            if (tfg >= 90) out.value = "Estadía 1";
+            else if (tfg >= 60) out.value = "Estadía 2";
+            else if (tfg >= 30) out.value = "Estadía 3";
+            else if (tfg >= 15) out.value = "Estadía 4";
+            else out.value = "Estadía 5";
+        }
+    }
+
+    function buscar(inputId, tablaId) {
+        let val = document.getElementById(inputId).value.toLowerCase();
+        let rows = document.getElementById(tablaId).rows;
+        for(let i=0; i<rows.length; i++) rows[i].style.display = rows[i].textContent.toLowerCase().includes(val) ? "" : "none";
+    }
+
+    function filtrarPorEstadia(est) {
+        let f = dataPacientes.filter(p => p.estadio_erc && p.estadio_erc.includes(est.toString()));
+        let html = '';
+        f.forEach(p => { html += `<tr><td>${p.nombre_completo}</td><td>${p.cedula}</td><td>${p.sexo}</td><td>${p.telefono||'-'}</td></tr>`; });
+        document.getElementById('body-filtro').innerHTML = html || '<tr><td colspan="4" class="text-center">Sin registros</td></tr>';
+        document.getElementById('tabla-filtrada-container').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

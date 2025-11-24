@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital General de Cabimas | SINEF</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-dark: #0a192f;   
+            --secondary-dark: #112240; 
+            --accent-red: #e53935;     
+            --accent-cyan: #64ffda;    
+            --text-gray: #8892b0;      
+            --text-white: #e6f1ff;     
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-gray);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: rgba(10, 25, 47, 0.98); /* Más opaco para que no moleste el fondo */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 15px 0;
+            /* Asegura que la barra tenga una altura controlada */
+            min-height: 80px;
+        }
+        .brand-title { color: var(--text-white); font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; }
+        .brand-subtitle { color: var(--accent-cyan); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .btn-login-red {
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.75rem; /* Un poco más pequeño para que quepa bien */
+            letter-spacing: 1px;
+            white-space: nowrap; /* Evita que el texto del botón se parta */
+        }
+        .btn-login-red:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.6);
+            color: white;
+        }
+
+        /* --- HERO SECTION RESPONSIVE --- */
+        .hero {
+            background: radial-gradient(circle at 70% 20%, #1e3a5f 0%, #0a192f 70%);
+            position: relative;
+            overflow: hidden;
+            /* Padding estándar para PC */
+            padding-top: 150px; 
+            padding-bottom: 80px;
+        }
+        
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -10%; right: -5%;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(100, 255, 218, 0.05) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .hero h1 {
+            color: var(--text-white);
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+
+        /* Estilo Profesional para la Cita */
+        .quote-box {
+            border-left: 3px solid var(--accent-red);
+            padding-left: 20px;
+            background: linear-gradient(90deg, rgba(229, 57, 53, 0.1) 0%, transparent 100%);
+            padding: 15px 20px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 30px;
+        }
+        .quote-text {
+            color: var(--text-white);
+            font-style: italic;
+            font-weight: 300;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+        .quote-author {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* IMAGEN HERO */
+        .hero-img-container {
+            position: relative;
+            z-index: 1;
+            animation: float 6s ease-in-out infinite;
+            text-align: center;
+        }
+        .hero-img {
+            width: 100%;
+            max-width: 380px; 
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
+            border-radius: 20px;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* --- SECCIONES --- */
+        .section-padding { padding: 80px 0; }
+        .section-header h2 { color: var(--text-white); font-weight: 700; font-size: 2.5rem; margin-bottom: 20px; }
+        .section-header::after { content: ""; display: block; width: 80px; height: 4px; background: var(--accent-red); margin-top: 15px; }
+
+        /* --- MAPA --- */
+        .map-container {
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            height: 400px; /* Altura buena para el mapa */
+            width: 100%;
+            position: relative;
+        }
+
+        /* --- TARJETAS --- */
+        .feature-card {
+            background-color: var(--secondary-dark);
+            padding: 30px;
+            border-radius: 12px;
+            height: 100%;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-cyan);
+            background-color: rgba(17, 34, 64, 0.9);
+        }
+        .card-icon { font-size: 2rem; margin-bottom: 15px; display: block; }
+        .card-title { color: var(--text-white); font-weight: 700; margin-bottom: 10px; }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: #020c1b;
+            padding: 50px 0 20px;
+            text-align: center;
+            border-top: 1px solid #233554;
+        }
+        .social-links a { color: var(--text-gray); font-size: 1.5rem; margin: 0 10px; transition: 0.3s; }
+        .social-links a:hover { color: var(--accent-cyan); transform: scale(1.2); display: inline-block; }
+
+        /* --- VISTA MÓVIL (MEDIA QUERIES) --- */
+        @media (max-width: 768px) {
+            /* Ajuste Navbar Móvil */
+            .navbar-brand img { width: 35px; }
+            .brand-title { font-size: 0.7rem; } /* Texto más pequeño */
+            .brand-subtitle { display: none; } /* Ocultar subtítulo para ahorrar espacio */
+            .btn-login-red { padding: 6px 15px; font-size: 0.7rem; } /* Botón más compacto */
+
+            /* AJUSTE CRÍTICO: Padding Hero para que baje el contenido */
+            .hero { 
+                padding-top: 180px !important; /* MÁS ESPACIO ARRIBA */
+                text-align: center; 
+            }
+            .hero h1 { font-size: 2.2rem; }
+            
+            .hero-img-container { margin-top: 40px; }
+            .hero-img { max-width: 250px; }
+            
+            .quote-box { text-align: left; margin: 20px 5px; }
+            
+            .section-header h2 { font-size: 2rem; }
+            .section-header::after { margin: 15px auto; }
+            .section-header { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo_hospital.png" alt="Logo" width="50" class="me-3">
+                <div>
+                    <span class="brand-title d-block">HOSPITAL GENERAL DE CABIMAS</span>
+                    <span class="brand-subtitle">Dr. Adolfo D'Empaire</span>
+                </div>
+            </a>
+            <div class="ms-auto">
+                <a href="login.html" class="btn btn-login-red">Ingresar</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero d-flex align-items-center">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <div class="col-lg-7 hero-content">
+                    <span class="badge border border-info text-info mb-3 px-3 py-2 rounded-pill">Tecnología Médica Emergente</span>
+                    <h1>Unidad Integral de <br><span style="color: var(--accent-cyan);">Nefrología</span></h1>
+                    
+                    <div class="quote-box">
+                        <p class="quote-text">
+                            "La salud es un estado completo de bienestar físico, mental y social, y no solamente la ausencia de afecciones."
+                        </p>
+                        [cite_start]<span class="quote-author">— OMS [cite: 117]</span>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                        <a href="#informacion" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold">Saber Más</a>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 text-center">
+                    <div class="hero-img-container">
+                        <img src="hospital.png" alt="Hospital General de Cabimas" class="hero-img"> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="informacion" class="section-padding">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <div class="section-header">
+                        <h2>¿Qué es la Nefrología?</h2>
+                    </div>
+                    <div class="pe-lg-5 text-white">
+                        <p class="lead">Es la especialidad médica dedicada al estudio de la estructura y función renal, vital para el equilibrio del cuerpo humano.</p>
+                        <p class="opacity-75">Nuestra unidad se centra en la prevención, diagnóstico y tratamiento de enfermedades renales, utilizando tecnología de punta para minimizar complicaciones sistémicas y mejorar la calidad de vida.</p>
+                        
+                        <div class="mt-4 p-3 rounded border border-secondary bg-dark">
+                            <h6 class="text-info mb-2"><i class="bi bi-info-circle me-2"></i>Importancia Clínica</h6>
+                            <p class="small m-0 opacity-75">El monitoreo constante permite detectar fallos en estadios tempranos (1 y 2), evitando la progresión a terapias de reemplazo renal invasivas.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="nefrologia.png" alt="Nefrología" class="img-fluid rounded shadow-lg border border-secondary" style="max-height: 400px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding" style="background-color: rgba(17, 34, 64, 0.3);">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="text-white fw-bold">Nuestra Institución</h2>
+                <div style="width: 60px; height: 4px; background: var(--accent-cyan); margin: 15px auto;"></div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <i class="bi bi-bullseye card-icon text-danger"></i>
+                        <h4 class="card-title">Misión</h4>
+                        <p class="small opacity-75">Brindar atención integral a pacientes con Enfermedad Renal Crónica mediante el uso de tecnologías médicas emergentes, garantizando un servicio humanista y de calidad en la Costa Oriental del Lago.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <i class="bi bi-eye card-icon text-info"></i>
+                        <h4 class="card-title">Visión</h4>
+                        <p class="small opacity-75">Ser un centro de referencia nacional en nefrología, pioneros en la implementación de IA y Telemedicina para el monitoreo y tratamiento renal, reduciendo la morbilidad.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <i class="bi bi-laptop card-icon" style="color: var(--accent-cyan);"></i>
+                        <h4 class="card-title">Objetivos SINEF</h4>
+                        <p class="small opacity-75">Digitalizar la gestión de historias clínicas y el control de pacientes renales, facilitando la comunicación médico-paciente y el seguimiento mediante herramientas web avanzadas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <h5 class="text-danger text-uppercase mb-4 fw-bold ls-2">Ubicación Exacta</h5>
+                    
+                    <div class="map-container mb-4">
+                        <iframe 
+                            src="https://maps.google.com/maps?q=Hospital+General+de+Cabimas+Dr.+Adolfo+D'Empaire&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+                            width="100%" 
+                            height="100%" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+
+                    <p class="text-white fs-6 mb-4">
+                        <i class="bi bi-geo-alt-fill me-2 text-danger"></i>
+                        Avenida Andrés Bello, parroquia Ambrosio, Cabimas, estado Zulia.
+                    </p>
+                    
+                    <div class="social-links mb-5">
+                        <a href="https://www.instagram.com/hospitaldradolfodempaire/" target="_blank"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.facebook.com/p/Hospital-General-de-Cabimas-Dr-Adolfo-DEmpaire-100077067501951/?locale=es_LA" target="_blank"><i class="bi bi-facebook"></i></a>
+                    </div>
+
+                    <div class="border-top border-secondary pt-4">
+                        <p class="mb-1 fw-bold text-white fs-6">© 2025 SINEF - Hospital General de Cabimas "Dr. Adolfo D'Empaire"</p>
+                        <p class="text-white m-0 small opacity-75">Desarrollado por Ing. Marisol Cepeda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
