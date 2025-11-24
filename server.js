@@ -12,22 +12,19 @@ require('dotenv').config();
 const app = express();
 // CAMBIAR: Usar la variable de entorno PORT (que asigna el hosting)
 
-// 1. BASE DE DATOS (AQUÍ ESTÁ LA CORRECCIÓN CRÍTICA)
+// --- server.js (Configuración de la Base de Datos) ---
+
+// 1. BASE DE DATOS
 const client = new Client({
-  // Lee las variables del entorno del hosting o usa valores locales si no existen (solo para testing local)
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'hospital_nefrologia',
-  // AHORA LEE LA CONTRASEÑA DE forma segura
-  password: process.env.DB_PASSWORD || 'Elvimar-15', 
-  port: process.env.DB_PORT || 5432,
+  // Render crea esta variable con todas las credenciales
+  connectionString: process.env.DATABASE_URL, 
   
- // CORRECCIÓN CRÍTICA: Solo activa SSL si existe una variable de entorno DB_HOST
-  ssl: process.env.DB_HOST ? { 
+  // Condición SSL: Activa SSL solo si la URL existe (estamos en Render)
+  ssl: process.env.DATABASE_URL ? { 
     rejectUnauthorized: false 
   } : false 
 });
-client.connect()
+// ...client.connect()
   .then(() => console.log('✅ Conexión exitosa a PostgreSQL'))
   .catch(err => console.error('❌ Error de conexión a BD', err.stack));
 
