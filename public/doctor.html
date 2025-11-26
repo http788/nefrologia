@@ -3,232 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Médico SINEF - HGC</title>
+    <title>CINYDMC - Portal Médico</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            /* PALETA DARK BLUE ORIGINAL */
-            --bg-body: #0a192f;       
-            --bg-sidebar: #061221;    
-            --bg-card: #112240;       
-            --text-white: #e6f1ff;    
-            --text-gray: #a8b2d1;
-            --accent-blue: #233554;   
-            --highlight: #64ffda;     
-            --danger: #ef4444;
-            --warning: #ffc107;
-            --success: #00b894;
-            --input-bg: rgba(255, 255, 255, 0.05);
+            /* PALETA "AIRE & VIDA" (Turquesa Clínico - Unificada) */
+            --bg-body: #e0f2f1;       
+            --sidebar-bg: #004d40;    
+            --accent: #26a69a;        
+            --text-dark: #263238;     
+            --card-bg: #ffffff;       
+            --danger: #d32f2f;
+            --input-bg: #f1f8e9;
+            --border-color: #c5e1a5;
         }
 
         body { 
             background-color: var(--bg-body); 
-            color: var(--text-white); 
+            color: var(--text-dark); 
             font-family: 'Poppins', sans-serif; 
-            font-size: 0.95rem; /* TAMAÑO PERFECTO (Ni muy grande, ni muy chico) */
+            font-size: 0.9rem;
             overflow-x: hidden; 
         }
 
-        /* --- TIPOGRAFÍA Y CONTRASTE --- */
-        h1, h2, h3, h4, h5, h6, label, span, div, p, th, td, li, a, input, select, textarea {
-            color: var(--text-white);
-        }
-        .text-muted { color: var(--text-gray) !important; }
-        .text-highlight { color: var(--highlight) !important; }
+        h1, h2, h3, h4, h5, h6 { color: var(--sidebar-bg); font-weight: 700; }
+        .text-highlight { color: var(--accent) !important; }
         
-        h2 { font-weight: 700; font-size: 1.8rem; }
-        h4 { font-weight: 600; font-size: 1.3rem; }
-        h5 { font-weight: 600; font-size: 1.1rem; }
-        .small { font-size: 0.85rem; }
-
-        /* --- FORMULARIOS (Cómodos y Legibles) --- */
-        .form-control, .form-select, textarea {
-            background-color: var(--input-bg) !important;
-            border: 1px solid var(--accent-blue) !important;
-            color: #fff !important;
-            padding: 10px 15px; /* Espacio cómodo */
-            border-radius: 8px;
-        }
-        .form-control:focus, .form-select:focus {
-            box-shadow: none !important; 
-            border-color: var(--highlight) !important;
-            background-color: rgba(255, 255, 255, 0.1) !important;
-        }
-        .form-control::placeholder { color: rgba(255, 255, 255, 0.4) !important; }
-        option { background-color: var(--bg-sidebar); color: white; }
-
-        /* --- SIDEBAR --- */
+        /* SIDEBAR */
         .sidebar {
-            background-color: var(--bg-sidebar);
-            min-height: 100vh;
-            border-right: 1px solid var(--accent-blue);
-            position: fixed; top: 0; left: 0; 
-            width: 250px; /* Ancho estándar cómodo */
-            padding-top: 25px; z-index: 1050; 
-            display: flex; flex-direction: column;
-            transition: transform 0.3s ease-in-out;
+            background: linear-gradient(160deg, var(--sidebar-bg) 0%, #00251a 100%);
+            min-height: 100vh; position: fixed; top: 0; left: 0; 
+            width: 260px; padding-top: 25px; z-index: 1050; 
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1); transition: 0.3s;
         }
         
-        .profile-icon-container i {
-            font-size: 3rem; 
-            color: var(--highlight);
-            text-shadow: 0 0 15px rgba(100, 255, 218, 0.3);
-        }
+        .hospital-logo { font-size: 3.5rem; color: #ffffff; text-shadow: 0 0 15px rgba(255,255,255,0.4); }
 
         .nav-link { 
-            color: var(--text-gray) !important; 
-            padding: 12px 25px; 
-            font-weight: 500;
-            border-left: 3px solid transparent; 
-            transition: 0.3s; 
-            display: flex; align-items: center;
-            font-size: 0.95rem;
+            color: rgba(255,255,255,0.85) !important; padding: 12px 25px; 
+            font-weight: 500; border-radius: 0 50px 50px 0; margin-bottom: 5px; transition: 0.3s; 
         }
         .nav-link:hover, .nav-link.active { 
-            background-color: rgba(100, 255, 218, 0.08); 
-            color: var(--highlight) !important; 
-            border-left-color: var(--highlight);
+            background-color: var(--accent); color: white !important; 
+            padding-left: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .nav-link i { width: 25px; font-size: 1.2rem; margin-right: 10px; text-align: center; }
+        .nav-link i { margin-right: 10px; font-size: 1.2rem; }
 
-        /* --- CONTENIDO PRINCIPAL --- */
-        .main-content { 
-            margin-left: 250px; 
-            padding: 30px 40px; /* Espacio para respirar */
-        }
+        /* CONTENIDO */
+        .main-content { margin-left: 260px; padding: 30px 40px; }
         
         .card-custom { 
-            background-color: var(--bg-card); 
-            border: 1px solid var(--accent-blue); 
-            border-radius: 12px; 
-            padding: 25px; 
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+            background-color: var(--card-bg); border: none; border-radius: 15px; 
+            padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* FORMULARIOS */
+        .form-control, .form-select, textarea {
+            background-color: var(--input-bg) !important; border: 1px solid var(--border-color) !important;
+            color: var(--text-dark) !important; border-radius: 8px; padding: 10px;
+        }
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.2) !important;
+            border-color: var(--accent) !important; background-color: white !important;
         }
 
         /* TABLAS */
-        .table-custom { --bs-table-bg: transparent; --bs-table-color: var(--text-gray); border-color: var(--accent-blue); }
         .table-custom th { 
-            border-bottom: 1px solid var(--highlight); 
-            color: var(--highlight) !important; 
-            font-weight: 600; 
-            padding: 15px; 
-            text-transform: uppercase; 
-            font-size: 0.85rem; 
-            letter-spacing: 0.5px;
+            background-color: #b2dfdb !important; color: var(--sidebar-bg) !important; 
+            font-weight: 600; border-bottom: 2px solid var(--accent); padding: 15px;
         }
-        .table-custom td { 
-            padding: 12px 15px; 
-            border-bottom: 1px solid var(--accent-blue); 
-            color: var(--text-white); 
-            vertical-align: middle; 
-        }
-        .table-hover tbody tr:hover td { background-color: rgba(100, 255, 218, 0.05); }
-
-        /* MODAL */
-        .modal-content { background-color: var(--bg-card); border: 1px solid var(--highlight); color: var(--text-white); }
-        .modal-header { padding: 15px 25px; border-bottom: 1px solid var(--accent-blue); }
-        .modal-body { padding: 25px; }
-        .modal-footer { padding: 15px 25px; border-top: 1px solid var(--accent-blue); }
-        .btn-close { filter: invert(1); opacity: 0.8; }
-        
-        /* TABS */
-        .nav-pills .nav-link { 
-            color: var(--text-gray) !important; 
-            background: rgba(255,255,255,0.05); 
-            margin-right: 5px; 
-            border: 1px solid var(--accent-blue); 
-            padding: 8px 20px;
-        }
-        .nav-pills .nav-link.active { 
-            background-color: var(--highlight); 
-            color: var(--bg-body) !important; 
-            font-weight: bold; 
-            border-color: var(--highlight); 
-        }
+        .table-custom td { padding: 12px 15px; vertical-align: middle; background: white; border-bottom: 1px solid #e0f2f1; }
 
         /* BOTONES */
         .btn-brand { 
-            background: transparent; border: 1px solid var(--highlight); color: var(--highlight) !important; 
-            border-radius: 50px; padding: 8px 25px; font-weight: 500; transition: 0.3s; 
+            background: linear-gradient(135deg, var(--accent), #00897b); color: white !important; 
+            border: none; border-radius: 8px; padding: 10px 25px; font-weight: 600; transition: 0.3s; 
         }
-        .btn-brand:hover { background: var(--highlight); color: var(--bg-body) !important; font-weight: bold; }
-        
-        .btn-hl7 { 
-            background: #2e7d32; color: white !important; border: none; font-size: 0.85rem; 
-            font-weight: bold; padding: 6px 15px; border-radius: 6px; 
-        }
-        .btn-hl7:hover { background: #1b5e20; }
+        .btn-brand:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 137, 123, 0.4); }
 
-        /* PROGRESO */
-        .progress { height: 8px; background-color: var(--accent-blue); border-radius: 4px; margin-top: 5px; }
+        /* TABS MEDICAS */
+        .nav-pills .nav-link { color: var(--text-dark) !important; background: #f1f8e9; margin-right: 5px; border: 1px solid #c5e1a5; }
+        .nav-pills .nav-link.active { background-color: var(--accent); color: white !important; font-weight: bold; }
 
         /* RESPONSIVE */
-        .mobile-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; background: var(--bg-card); border: 1px solid var(--highlight); color: var(--highlight) !important; padding: 8px 12px; border-radius: 5px; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1040; display: none; }
-
+        .mobile-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 1100; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040; display: none; }
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 80px 20px; }
-            .mobile-toggle { display: block; }
+            .sidebar { transform: translateX(-100%); } .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 80px 20px; } .mobile-toggle { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <button class="mobile-toggle" onclick="toggleMenu()"><i class="bi bi-list"></i></button>
+    <button class="mobile-toggle btn btn-light shadow-sm text-dark" onclick="toggleMenu()"><i class="bi bi-list fs-4"></i></button>
     <div class="sidebar-overlay" onclick="toggleMenu()" id="overlay"></div>
 
     <div class="sidebar" id="sidebar">
-        <div class="text-center mb-4 pt-2">
-            <div class="profile-icon-container">
-                <i class="bi bi-person-badge-fill"></i>
-            </div>
-            <h5 class="fw-bold text-white mt-3 ls-1">SINEF <span class="text-highlight">MÉDICO</span></h5>
+        <div class="text-center mb-5 pt-4">
+            <i class="bi bi-hospital-fill hospital-logo"></i>
+            <h5 class="fw-bold text-white mt-2 ls-1">CINYDMC</h5>
+            <small class="text-white opacity-75">Portal Médico</small>
         </div>
-        
         <ul class="nav flex-column w-100">
             <li class="nav-item"><a class="nav-link active" href="#" onclick="showSection('perfil', this)"><i class="bi bi-person-circle"></i> Mi Perfil</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('dashboard', this)"><i class="bi bi-grid-1x2"></i> Resumen</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('dashboard', this)"><i class="bi bi-activity"></i> Resumen Clínico</a></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('citas', this)"><i class="bi bi-calendar-check"></i> Gestión de Citas</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('pacientes', this)"><i class="bi bi-people"></i> Pacientes</a></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('telemedicina', this)"><i class="bi bi-cloud-arrow-up"></i> Telemedicina</a></li>
-            
-            <li class="mt-auto mb-4 px-3 border-top border-secondary pt-3">
-                <a class="btn btn-outline-danger w-100 fw-bold text-danger" href="/logout" style="border-color: var(--danger);"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('pacientes', this)"><i class="bi bi-people-fill"></i> Mis Pacientes</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('telemedicina', this)"><i class="bi bi-cloud-medical"></i> Telemedicina</a></li>
+            <li class="mt-auto mb-4 px-3 border-top border-white-50 pt-3">
+                <a class="btn btn-light w-100 fw-bold text-danger shadow-sm" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a>
             </li>
         </ul>
     </div>
 
     <div class="main-content">
         
-        <div class="d-flex justify-content-between align-items-end mb-5 pb-2 border-bottom border-secondary">
+        <div class="d-flex justify-content-between align-items-center mb-5">
             <div>
-                <h2 class="fw-bold mb-0 text-white">Bienvenido, <span id="doc-welcome-name" class="text-highlight">Doctor</span></h2>
-                <small class="text-muted" id="fecha-hoy">Cargando...</small>
+                <h2 class="fw-bold mb-0">Bienvenido, <span id="doc-welcome-name" class="text-highlight">Colega</span></h2>
+                <small class="text-muted" id="fecha-hoy">Cargando fecha...</small>
             </div>
-            <span class="badge bg-dark border border-info text-info px-3 py-2 rounded-pill" id="doc-cargo-badge">--</span>
+            <span class="badge bg-white text-dark border shadow-sm px-3 py-2 rounded-pill fs-6" id="doc-cargo-badge">--</span>
         </div>
 
         <div id="section-perfil">
             <div class="card-custom">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="m-0"><i class="bi bi-person-vcard text-highlight me-2"></i>Ficha Profesional</h4>
-                    <button class="btn btn-brand" onclick="guardarCambiosPerfil()"><i class="bi bi-save me-2"></i>Guardar Cambios</button>
+                    <h4 class="m-0"><i class="bi bi-person-vcard-fill me-2 text-highlight"></i>Ficha Profesional</h4>
+                    <button class="btn btn-brand" onclick="guardarCambiosPerfil()"><i class="bi bi-check-circle me-2"></i>Actualizar Datos</button>
                 </div>
                 <div class="row g-4">
-                    <div class="col-md-6"><label class="small text-muted mb-1">Nombre Completo</label><input type="text" id="perf_nombre" class="form-control" disabled></div>
-                    <div class="col-md-6"><label class="small text-muted mb-1">Cédula</label><input type="text" id="perf_cedula" class="form-control" disabled></div>
-                    <div class="col-md-6"><label class="small text-muted mb-1">Especialidad</label><input type="text" id="perf_cargo" class="form-control" disabled></div>
-                    <div class="col-md-6"><label class="small text-muted mb-1">Email</label><input type="text" id="perf_email" class="form-control" disabled></div>
-                    <div class="col-12 my-1"><hr class="border-secondary opacity-25"></div>
-                    <div class="col-md-6"><label class="text-highlight fw-bold mb-1">Horario de Atención</label><input type="text" id="perf_horario" class="form-control border-info" placeholder="Ej: Lun-Vie 8am - 12pm"></div>
-                    <div class="col-md-6"><label class="text-highlight fw-bold mb-1">Teléfono de Contacto</label><input type="text" id="perf_telefono" class="form-control border-info" placeholder="Ej: 0412-1234567"></div>
+                    <div class="col-md-6"><label class="small fw-bold text-muted">Nombre Completo</label><input type="text" id="perf_nombre" class="form-control" disabled></div>
+                    <div class="col-md-6"><label class="small fw-bold text-muted">Cédula Profesional</label><input type="text" id="perf_cedula" class="form-control" disabled></div>
+                    <div class="col-md-6"><label class="small fw-bold text-muted">Especialidad / Cargo</label><input type="text" id="perf_cargo" class="form-control" disabled></div>
+                    <div class="col-md-6"><label class="small fw-bold text-muted">Correo Institucional</label><input type="text" id="perf_email" class="form-control" disabled></div>
+                    <div class="col-12"><hr class="text-muted opacity-25"></div>
+                    <div class="col-md-6"><label class="fw-bold text-highlight">Horario de Atención</label><input type="text" id="perf_horario" class="form-control bg-white"></div>
+                    <div class="col-md-6"><label class="fw-bold text-highlight">Teléfono de Contacto</label><input type="text" id="perf_telefono" class="form-control bg-white"></div>
                 </div>
             </div>
         </div>
@@ -236,26 +153,26 @@
         <div id="section-dashboard" style="display: none;">
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
-                    <div class="card-custom text-center">
-                        <h1 class="text-highlight fw-bold display-4 mb-0" id="dash-total">0</h1>
-                        <span class="text-muted text-uppercase small ls-1">Pacientes Totales</span>
+                    <div class="card-custom text-center border-bottom border-4 border-success h-100">
+                        <h1 class="fw-bold display-4 mb-0 text-dark" id="dash-total">0</h1>
+                        <span class="text-muted text-uppercase small fw-bold">Pacientes Totales</span>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card-custom text-center" style="border-color: var(--warning);">
-                        <h1 class="text-warning fw-bold display-4 mb-0" id="dash-pendientes">0</h1>
-                        <span class="text-muted text-uppercase small ls-1">Solicitudes Pendientes</span>
+                    <div class="card-custom text-center border-bottom border-4 border-warning h-100">
+                        <h1 class="fw-bold display-4 mb-0 text-dark" id="dash-pendientes">0</h1>
+                        <span class="text-muted text-uppercase small fw-bold">Solicitudes Pendientes</span>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card-custom text-center" style="border-color: var(--success);">
-                        <h1 class="text-success fw-bold display-4 mb-0" id="dash-hoy">0</h1>
-                        <span class="text-muted text-uppercase small ls-1">Citas Para Hoy</span>
+                    <div class="card-custom text-center border-bottom border-4 border-info h-100">
+                        <h1 class="fw-bold display-4 mb-0 text-dark" id="dash-hoy">0</h1>
+                        <span class="text-muted text-uppercase small fw-bold">Citas para Hoy</span>
                     </div>
                 </div>
             </div>
             <div class="card-custom">
-                <h5 class="mb-4 text-white"><i class="bi bi-bar-chart-fill me-2 text-highlight"></i>Distribución por Estadio Renal (ERC)</h5>
+                <h5 class="mb-4"><i class="bi bi-bar-chart-line-fill me-2 text-highlight"></i>Distribución de Estadios (ERC)</h5>
                 <div id="chart-container" class="d-flex flex-column gap-3"></div>
             </div>
         </div>
@@ -264,14 +181,14 @@
             <div class="row g-4">
                 <div class="col-lg-4">
                     <div class="card-custom h-100">
-                        <h5 class="text-highlight mb-4"><i class="bi bi-calendar-day me-2"></i>Agenda del Día</h5>
+                        <h5 class="mb-4 text-highlight"><i class="bi bi-clock-history me-2"></i>Citas del Día</h5>
                         <div id="contenedor-citas-hoy" style="max-height: 500px; overflow-y: auto;"></div>
                     </div>
                 </div>
                 <div class="col-lg-8">
                     <div class="card-custom h-100">
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="m-0 text-white">Solicitudes Entrantes</h5>
+                            <h5 class="m-0">Solicitudes de Cita</h5>
                             <span class="badge bg-warning text-dark" id="badge-solicitudes">0 Nuevas</span>
                         </div>
                         <div class="table-responsive">
@@ -286,12 +203,9 @@
         </div>
 
         <div id="section-pacientes" style="display: none;">
-            <div class="card-custom mb-4 d-flex flex-row justify-content-between align-items-center">
-                <h4 class="m-0 text-white">Base de Datos Clínica</h4>
-                <div class="position-relative w-50">
-                    <i class="bi bi-search position-absolute text-highlight" style="left: 15px; top: 50%; transform: translateY(-50%);"></i>
-                    <input type="text" id="busqPac" class="form-control" style="padding-left: 40px; border-radius: 50px;" placeholder="Buscar por nombre o cédula..." onkeyup="filtrarPacientes()">
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="m-0">Directorio de Pacientes</h3>
+                <input type="text" id="busqPac" class="form-control w-25 shadow-sm" placeholder="Buscar paciente..." onkeyup="filtrarPacientes()">
             </div>
             <div class="card-custom p-0 overflow-hidden">
                 <div class="table-responsive">
@@ -305,33 +219,57 @@
 
         <div id="section-telemedicina" style="display: none;">
             <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="card-custom">
-                        <div class="text-center mb-4">
-                            <i class="bi bi-cloud-arrow-up text-highlight display-1"></i>
-                            <h4 class="mt-3 text-white">Envío de Documentos y Multimedia</h4>
-                            <p class="text-muted small">Comparta recetas, informes y videos de consulta.</p>
+                <div class="col-lg-10">
+                    <div class="card-custom mb-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                                <i class="bi bi-cloud-upload-fill fs-2 text-success"></i>
+                            </div>
+                            <div>
+                                <h4 class="m-0">Centro de Carga de Documentos</h4>
+                                <small class="text-muted">Envíe recetas, órdenes y resultados directamente al paciente.</small>
+                            </div>
                         </div>
-                        <form id="form-telemedicina" onsubmit="enviarArchivo(event)" class="p-4 border border-secondary rounded bg-dark">
-                            <div class="mb-3"><label class="text-highlight small mb-1">Paciente</label><select name="paciente_id" id="select-paciente-receta" class="form-select" required></select></div>
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <label class="text-highlight small mb-1">Tipo de Archivo</label>
+                        <form id="form-telemedicina" onsubmit="enviarArchivo(event)" class="p-4 bg-light rounded border border-success border-opacity-25">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="fw-bold small mb-1">Seleccionar Paciente</label>
+                                    <select name="paciente_id" id="select-paciente-receta" class="form-select" required></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold small mb-1">Tipo de Documento</label>
                                     <select name="tipo" class="form-select">
-                                        <option value="receta">📄 Receta Médica</option>
-                                        <option value="orden">🧪 Orden de Laboratorio</option>
-                                        <option value="informe">📋 Informe Médico</option>
-                                        <option value="video">🎥 Video Consulta / Evidencia</option>
+                                        <option value="receta">Receta Médica</option>
+                                        <option value="orden">Orden de Laboratorio</option>
+                                        <option value="informe">Informe Médico / Historia</option>
+                                        <option value="imagen">Imagen Diagnóstica</option>
                                     </select>
                                 </div>
-                                <div class="col-6">
-                                    <label class="text-highlight small mb-1">Seleccionar Archivo</label>
-                                    <input type="file" name="archivo" class="form-control" accept=".pdf,.jpg,.png,.mp4,.mov,.avi" required>
+                                <div class="col-12">
+                                    <label class="fw-bold small mb-1">Archivo (PDF, JPG, PNG)</label>
+                                    <input type="file" name="archivo" class="form-control" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="fw-bold small mb-1">Indicaciones / Observaciones</label>
+                                    <textarea name="descripcion" class="form-control" rows="2" placeholder="Escriba aquí las indicaciones para el paciente..."></textarea>
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button class="btn btn-brand px-5"><i class="bi bi-send-fill me-2"></i>ENVIAR</button>
                                 </div>
                             </div>
-                            <div class="mb-3"><label class="text-highlight small mb-1">Notas / Indicaciones</label><textarea name="descripcion" class="form-control" rows="2"></textarea></div>
-                            <button class="btn btn-brand w-100">ENVIAR AHORA</button>
                         </form>
+                    </div>
+
+                    <div class="card-custom">
+                        <h5 class="mb-3 text-highlight"><i class="bi bi-clock-history me-2"></i>Historial de Envíos Realizados</h5>
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover align-middle">
+                                <thead><tr><th>Fecha</th><th>Paciente</th><th>Documento</th><th>Nota</th><th>Estado</th></tr></thead>
+                                <tbody id="tabla-historial-telemedicina">
+                                    <tr><td colspan="5" class="text-center py-3 text-muted">Cargando historial...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -341,102 +279,111 @@
 
     <div class="modal fade" id="modalEvaluacion" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
+            <div class="modal-content shadow-lg">
                 <div class="modal-header">
                     <div class="d-flex align-items-center gap-3">
-                        <h5 class="modal-title m-0 text-highlight"><i class="bi bi-clipboard2-pulse me-2"></i>Expediente Clínico Integral</h5>
-                        <button class="btn btn-hl7" onclick="generarHL7()"><i class="bi bi-filetype-xml me-1"></i> HL7 v2.5</button>
+                        <h5 class="modal-title m-0 fw-bold"><i class="bi bi-file-medical-fill me-2 text-warning"></i>Expediente Clínico Electrónico</h5>
+                        <button class="btn btn-sm btn-outline-light d-flex align-items-center" onclick="generarHL7()">
+                            <i class="bi bi-filetype-xml me-1"></i> Exportar HL7
+                        </button>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body bg-light">
                     <input type="hidden" id="eval_id">
                     
-                    <ul class="nav nav-pills mb-4 nav-fill" id="pills-tab" role="tablist">
-                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-datos">1. Datos Personales</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-antecedentes">2. Antecedentes</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-sintomas">3. Síntomas</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tratamiento">4. Tratamiento</button></li>
-                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-lab">5. Laboratorio (TFG)</button></li>
+                    <div class="card-custom p-3 mb-3 border shadow-sm">
+                        <div class="row g-3">
+                            <div class="col-md-4"><label class="small fw-bold text-muted">Paciente</label><input type="text" id="hist_nombre" class="form-control bg-white fw-bold" readonly></div>
+                            <div class="col-md-2"><label class="small fw-bold text-muted">ID / Cédula</label><input type="text" id="hist_cedula" class="form-control bg-white" readonly></div>
+                            <div class="col-md-2"><label class="small fw-bold text-muted">Edad</label><input type="text" id="eval_edad" class="form-control bg-white" readonly></div>
+                            <div class="col-md-2"><label class="small fw-bold text-muted">Sexo</label><input type="text" id="eval_sexo" class="form-control bg-white" readonly></div>
+                            <div class="col-md-2"><label class="small fw-bold text-danger">GS/RH</label><select id="hist_sangre" class="form-select"><option value="">--</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option></select></div>
+                            
+                            <div class="col-md-6"><label class="small fw-bold text-muted">Dirección</label><input type="text" id="hist_direccion" class="form-control bg-white" readonly></div>
+                            <div class="col-md-6"><label class="small fw-bold text-muted">Emergencia</label><input type="text" id="hist_emergencia" class="form-control bg-white" readonly></div>
+                        </div>
+                    </div>
+
+                    <ul class="nav nav-pills mb-3 nav-fill bg-white rounded shadow-sm p-1" id="pills-tab">
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-anamnesis">1. Anamnesis</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-fisico">2. Examen Físico & Labs</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-tratamiento">3. Plan / Diálisis</button></li>
                     </ul>
 
                     <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade show active" id="tab-datos">
+                        <div class="tab-pane fade show active" id="tab-anamnesis">
                             <div class="row g-3">
-                                <div class="col-md-4"><label class="text-highlight mb-1">Nombre Completo</label><input type="text" id="hist_nombre" class="form-control" readonly></div>
-                                <div class="col-md-2"><label class="text-highlight mb-1">Cédula</label><input type="text" id="hist_cedula" class="form-control" readonly></div>
-                                <div class="col-md-2"><label class="text-highlight mb-1">Edad</label><input type="text" id="eval_edad" class="form-control" readonly></div>
-                                <div class="col-md-2"><label class="text-highlight mb-1">Sexo</label><input type="text" id="eval_sexo" class="form-control" readonly></div>
-                                <div class="col-md-2"><label class="text-danger fw-bold mb-1">Tipo Sangre</label><select id="hist_sangre" class="form-select"><option value="">--</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
-                                <div class="col-md-6"><label class="text-muted mb-1">Contacto Emergencia</label><input type="text" id="hist_emergencia" class="form-control"></div>
-                                <div class="col-md-6"><label class="text-muted mb-1">Dirección</label><input type="text" id="hist_direccion" class="form-control"></div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-highlight">Antecedentes Patológicos</label>
+                                    <textarea id="ant_patologicos" class="form-control" rows="4" placeholder="HTA, Diabetes, Litiasis..."></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="fw-bold text-highlight">Antecedentes Familiares</label>
+                                    <textarea id="ant_familiar" class="form-control" rows="4" placeholder="Enfermedad renal hereditaria..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="fw-bold text-danger">Comorbilidades Activas / Alergias</label>
+                                    <textarea id="ant_comorbilidades" class="form-control" rows="2" placeholder="Detalle condiciones actuales..."></textarea>
+                                </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="tab-antecedentes">
+
+                        <div class="tab-pane fade" id="tab-fisico">
+                            <div class="row g-3">
+                                <div class="col-lg-4">
+                                    <div class="p-3 bg-white rounded border h-100">
+                                        <h6 class="text-primary fw-bold border-bottom pb-2">Perfil Renal</h6>
+                                        <label class="small fw-bold">Urea (mg/dL)</label><input type="number" id="lab_urea" class="form-control mb-2">
+                                        <label class="small fw-bold">Creatinina (mg/dL)</label><input type="number" id="lab_crea" class="form-control mb-2 fw-bold text-primary" oninput="calcularTFG()">
+                                        <label class="small fw-bold">Albúmina (g/dL)</label><input type="number" id="lab_albumina" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="p-3 bg-white rounded border h-100">
+                                        <h6 class="text-info fw-bold border-bottom pb-2">Electrolitos y Otros</h6>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6"><label class="small">Calcio</label><input type="text" id="lab_calcio" class="form-control"></div>
+                                            <div class="col-6"><label class="small">Fósforo</label><input type="text" id="lab_fosforo" class="form-control"></div>
+                                        </div>
+                                        <label class="small fw-bold">PTH (pg/mL)</label><input type="text" id="lab_pth" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="p-3 bg-success bg-opacity-10 rounded border border-success h-100 text-center d-flex flex-column justify-content-center">
+                                        <h6 class="text-success fw-bold">TASA DE FILTRADO (TFGe)</h6>
+                                        <h1 class="display-4 fw-bold text-success my-2" id="eval_tfg">--</h1>
+                                        <input type="text" id="eval_estadio" class="form-control text-center fw-bold bg-transparent border-0" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="tab-tratamiento">
                             <div class="row g-4">
                                 <div class="col-md-6">
-                                    <label class="text-highlight mb-2">Patológicos y Quirúrgicos (Con Fechas)</label>
-                                    <textarea id="ant_patologicos" class="form-control mb-3" rows="4" placeholder="Enfermedades, Cirugías..."></textarea>
-                                    <label class="text-highlight mb-2">Comorbilidades (Diabetes, HTA)</label>
-                                    <textarea id="ant_comorbilidades" class="form-control" rows="3" placeholder="Detalles..."></textarea>
+                                    <label class="fw-bold text-dark mb-2">Indicaciones Farmacológicas</label>
+                                    <textarea id="trat_meds" class="form-control" rows="8" placeholder="Medicamento, Dosis, Frecuencia..."></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="text-highlight mb-2">Familiares y Otros</label>
-                                    <textarea id="ant_familiar" class="form-control mb-3" rows="2" placeholder="Historial Familiar Renal..."></textarea>
-                                    <textarea id="ant_otros" class="form-control mb-3" rows="3" placeholder="Tóxicos, Salud Mental, Estado General..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="tab-sintomas">
-                            <div class="row g-3">
-                                <div class="col-12"><label class="text-info fw-bold mb-1">Síntomas Urinarios</label><p class="small text-muted mb-1">Nicturia, Poliuria, Disuria, Hematuria, Oliguria.</p><textarea id="sint_urinarios" class="form-control mb-3" rows="3"></textarea></div>
-                                <div class="col-12"><label class="text-warning fw-bold mb-1">Síntomas Sistémicos</label><p class="small text-muted mb-1">Fatiga, Edema, Náuseas.</p><textarea id="sint_generales" class="form-control" rows="3"></textarea></div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="tab-tratamiento">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="text-highlight mb-1">Farmacología Actual</label><textarea id="trat_meds" class="form-control mb-3" rows="5" placeholder="Medicamentos, Dosis, Frecuencia..."></textarea>
-                                    <label class="text-highlight mb-1">Tratamiento Comorbilidades</label><textarea id="trat_comorb" class="form-control" rows="3"></textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="text-highlight mb-1">Tratamientos Previos</label><textarea id="trat_previos" class="form-control mb-3" rows="2"></textarea>
-                                    <div class="p-3 border border-danger rounded bg-dark"><label class="fw-bold text-danger mb-2">Diálisis (Si aplica)</label><textarea id="trat_dialisis" class="form-control" rows="4" placeholder="Tipo, Frecuencia, Complicaciones..."></textarea></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane fade" id="tab-lab">
-                            <div class="row g-3">
-                                <div class="col-lg-4">
-                                    <div class="p-3 border border-secondary rounded">
-                                        <label class="text-highlight mb-1">Urea (mg/dL)</label><input type="number" id="lab_urea" class="form-control mb-2">
-                                        <label class="fw-bold text-white mb-1">Creatinina (mg/dL)</label><input type="number" id="lab_crea" class="form-control mb-2 fw-bold text-info" oninput="calcularTFG()">
-                                        <label class="text-muted mb-1">Ca / P / PTH</label> 
-                                        <div class="input-group mb-1"><input type="text" id="lab_calcio" class="form-control" placeholder="Ca"><input type="text" id="lab_fosforo" class="form-control" placeholder="P"></div>
-                                        <input type="text" id="lab_pth" class="form-control" placeholder="PTH">
-                                    </div>
-                                </div>
-                                <div class="col-lg-4">
-                                    <label class="text-highlight mb-1">Orina e Imágenes</label>
-                                    <input type="text" id="lab_acr" class="form-control mb-2" placeholder="Albúmina/Creatinina (ACR)">
-                                    <textarea id="lab_eco" class="form-control mb-2" rows="2" placeholder="Ecografía Renal..."></textarea>
-                                    <textarea id="lab_biopsia" class="form-control" rows="2" placeholder="Biopsia..."></textarea>
-                                </div>
-                                <div class="col-lg-4 text-center">
-                                    <div class="p-4 rounded border border-info bg-dark h-100 d-flex flex-column justify-content-center">
-                                        <h6 class="text-info fw-bold">TASA FILTRACIÓN (TFGe)</h6>
-                                        <h2 class="fw-bold text-white my-3" id="eval_tfg">--</h2>
-                                        <small class="text-muted">mL/min/1.73m²</small>
-                                        <input type="text" id="eval_estadio" class="form-control text-center bg-transparent border-0 text-warning fw-bold mt-2" readonly>
+                                    <div class="card-custom p-3 border border-danger bg-white shadow-sm">
+                                        <h6 class="text-danger fw-bold border-bottom pb-2 mb-3"><i class="bi bi-droplet-half"></i> Prescripción de Diálisis (Solo IRC)</h6>
+                                        <div class="row g-2">
+                                            <div class="col-6"><label class="small fw-bold">Máquina / Filtro</label><input type="text" id="dial_maquina" class="form-control form-control-sm"></div>
+                                            <div class="col-6"><label class="small fw-bold">Perfil Baño</label><input type="text" id="dial_perfil" class="form-control form-control-sm"></div>
+                                            <div class="col-6"><label class="small fw-bold">Peso Seco (Kg)</label><input type="text" id="dial_peso" class="form-control form-control-sm"></div>
+                                            <div class="col-6"><label class="small fw-bold">Tensión Arterial</label><input type="text" id="dial_presion" class="form-control form-control-sm"></div>
+                                            <div class="col-12"><label class="small fw-bold">Notas de Sesión</label><textarea id="trat_dialisis" class="form-control form-control-sm" rows="3"></textarea></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-brand px-5" onclick="guardarEvaluacion()">GUARDAR HISTORIA</button>
+                <div class="modal-footer bg-white">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-brand px-5" onclick="guardarEvaluacion()"><i class="bi bi-save-fill me-2"></i>Guardar Historia</button>
                 </div>
             </div>
         </div>
@@ -463,6 +410,8 @@
             if(window.innerWidth <= 768) toggleMenu();
             document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
             if(el) el.classList.add('active');
+            
+            if(id === 'telemedicina') cargarHistorialTelemedicina();
             window.scrollTo(0,0);
         }
 
@@ -494,54 +443,39 @@
             } catch(e) { console.error(e); }
         }
 
-        function enviarArchivo(e) {
-            e.preventDefault(); 
-            const form = document.getElementById('form-telemedicina');
-            const formData = new FormData(form);
-            const btn = form.querySelector('button');
-            const txt = btn.innerText;
-            btn.innerText = '...'; btn.disabled = true;
-
-            fetch('/api/enviar-receta', { method: 'POST', body: formData })
-            .then(r => r.json()).then(res => {
-                if(res.success) {
-                    Swal.fire({title:'Enviado', text:'Archivo transferido exitosamente', icon:'success', confirmButtonColor:'#64ffda', background:'#112240', color:'#fff'});
-                    form.reset();
-                } else Swal.fire('Error', 'Fallo al subir', 'error');
-            }).catch(()=>Swal.fire('Error', 'Sin conexión', 'error'))
-            .finally(()=>{ btn.innerText = txt; btn.disabled = false; });
-        }
-
         function procesarDashboard() {
             let c = {1:0, 2:0, 3:0, 4:0, 5:0};
-            listaPacientes.forEach(p => { if(p.estadio_erc) { let m = p.estadio_erc.match(/Estadio (\d)/); if(m) c[parseInt(m[1])]++; } });
+            listaPacientes.forEach(p => { if(p.estadio_erc) { let m = p.estadio_erc.match(/Estad[io|ío] (\d)/); if(m) c[parseInt(m[1])]++; else if(p.estadio_erc.includes('5') || p.estadio_erc.includes('Diálisis')) c[5]++; } });
             document.getElementById('dash-total').innerText = listaPacientes.length;
             let html = '';
-            let colors = ['#00b894','#0984e3','#fdcb6e','#e17055','#d63031']; 
+            let colors = ['#26a69a','#29b6f6','#ffa726','#ef5350','#c62828']; 
             for(let i=1; i<=5; i++) {
                 let w = listaPacientes.length ? (c[i]/listaPacientes.length)*100 : 0;
-                html += `<div class="mb-2"><div class="d-flex justify-content-between small mb-1"><span class="text-muted">Estadio ${i}</span> <span class="fw-bold text-white">${c[i]}</span></div><div class="progress" style="height:8px; background:#112240;"><div class="progress-bar" style="width:${w}%; background-color:${colors[i-1]}"></div></div></div>`;
+                let label = i===5 ? 'IRC / Diálisis' : `Estadio ${i}`;
+                html += `<div class="mb-3"><div class="d-flex justify-content-between small mb-1"><span class="fw-bold text-secondary">${label}</span> <span class="fw-bold text-dark">${c[i]}</span></div><div class="progress" style="height:8px;"><div class="progress-bar" style="width:${w}%; background-color:${colors[i-1]}"></div></div></div>`;
             }
             document.getElementById('chart-container').innerHTML = html;
         }
 
         function procesarCitas() {
-            let hoyStr = new Date().toISOString().split('T')[0];
             let pen = citasDoctor.filter(c => c.estado === 'Pendiente');
-            let hoyC = citasDoctor.filter(c => c.fecha_hora.startsWith(hoyStr) && c.estado === 'Aprobada');
+            // SOLO MUESTRA CITAS 'APROBADA'. LAS 'ATENDIDA' YA NO SE MUESTRAN
+            let hoyC = citasDoctor.filter(c => c.estado === 'Aprobada');
+            
             document.getElementById('dash-pendientes').innerText = pen.length;
             document.getElementById('badge-solicitudes').innerText = pen.length;
             document.getElementById('dash-hoy').innerText = hoyC.length;
 
             let htmlP = '';
             pen.forEach(c => {
-                htmlP += `<tr><td>${new Date(c.fecha_hora).toLocaleDateString()}</td><td class="fw-bold text-white">${c.paciente}</td><td class="small text-muted">${c.motivo}</td><td class="text-end"><button class="btn btn-sm btn-success me-1" onclick="estadoCita(${c.id},'Aprobada')"><i class="bi bi-check"></i></button><button class="btn btn-sm btn-danger" onclick="estadoCita(${c.id},'Rechazada')"><i class="bi bi-x"></i></button></td></tr>`;
+                htmlP += `<tr><td>${new Date(c.fecha_hora).toLocaleDateString()}</td><td class="fw-bold">${c.paciente}</td><td class="small text-muted">${c.motivo}</td><td class="text-end"><button class="btn btn-sm btn-success me-1" onclick="estadoCita(${c.id},'Aprobada')"><i class="bi bi-check"></i></button><button class="btn btn-sm btn-danger" onclick="estadoCita(${c.id},'Rechazada')"><i class="bi bi-x"></i></button></td></tr>`;
             });
             document.getElementById('tabla-solicitudes').innerHTML = htmlP || '<tr><td colspan="4" class="text-center py-3 text-muted">Sin pendientes</td></tr>';
 
             let htmlH = '';
             hoyC.forEach(c => {
-                htmlH += `<div class="p-3 mb-2 rounded border-start border-4 border-info" style="background:rgba(17,34,64,0.8);"><div class="d-flex justify-content-between text-white"><strong>${new Date(c.fecha_hora).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</strong> <span class="badge bg-success">Ok</span></div><div class="text-highlight fw-bold mt-1">${c.paciente}</div><div class="small text-muted">${c.motivo}</div><button class="btn btn-sm btn-outline-info w-100 mt-2" onclick="abrirEvaluacion(${c.paciente_real_id})">Atender</button></div>`;
+                // Pasamos el ID DE LA CITA (c.id) y el ID DEL PACIENTE REAL (c.paciente_real_id)
+                htmlH += `<div class="p-3 mb-2 rounded border-start border-4 border-info bg-white shadow-sm"><div class="d-flex justify-content-between"><strong>${new Date(c.fecha_hora).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</strong> <span class="badge bg-success">Confirmada</span></div><div class="fw-bold mt-1" style="color:var(--accent)">${c.paciente}</div><div class="small text-muted">${c.motivo}</div><button class="btn btn-sm btn-outline-info w-100 mt-2" onclick="atenderCita(${c.id}, ${c.paciente_real_id})">Atender</button></div>`;
             });
             document.getElementById('contenedor-citas-hoy').innerHTML = htmlH || '<div class="text-center py-4 text-muted">Agenda libre</div>';
         }
@@ -550,65 +484,171 @@
             let html = '';
             listaPacientes.forEach(p => {
                 let bg = 'bg-secondary';
-                if(p.estadio_erc) { if(p.estadio_erc.includes('5')) bg='bg-danger'; else if(p.estadio_erc.includes('1')) bg='bg-success'; else bg='bg-warning text-dark'; }
-                html += `<tr><td class="ps-4 fw-bold text-white">${p.nombre_completo}</td><td class="text-muted">${p.cedula}</td><td><span class="badge ${bg}">${p.estadio_erc||'--'}</span></td><td class="fw-bold text-info">${p.creatinina||'--'}</td><td class="text-end pe-4"><button class="btn btn-sm btn-brand" onclick="abrirEvaluacion(${p.id})">Abrir</button></td></tr>`;
+                if(p.estadio_erc) { if(p.estadio_erc.includes('5') || p.estadio_erc.includes('Diálisis')) bg='bg-danger'; else if(p.estadio_erc.includes('1')) bg='bg-success'; else bg='bg-warning text-dark'; }
+                html += `<tr><td class="ps-4 fw-bold text-dark">${p.nombre_completo}</td><td class="text-muted">${p.cedula}</td><td><span class="badge ${bg}">${p.estadio_erc||'--'}</span></td><td class="fw-bold text-primary">${p.creatinina||'--'}</td><td class="text-end pe-4"><button class="btn btn-sm btn-brand" onclick="abrirEvaluacion(${p.id})">Historia</button></td></tr>`;
             });
             document.getElementById('tabla-pacientes').innerHTML = html;
         }
 
         function estadoCita(id, est) { fetch(`/api/cita-estado/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({estado:est}) }).then(r=>r.json()).then(d=>{ if(d.success) cargarDatos(); }); }
 
+        // --- NUEVA LÓGICA DE ATENDER CITA ---
+        function atenderCita(citaId, pacienteId) {
+            // 1. Cambiar estado de la cita a 'Atendida' (para que desaparezca de la lista)
+            fetch(`/api/cita-estado/${citaId}`, { 
+                method: 'PUT', 
+                headers: {'Content-Type':'application/json'}, 
+                body: JSON.stringify({estado: 'Atendida'}) 
+            }).then(r => r.json()).then(d => {
+                if(d.success) {
+                    // 2. Abrir historia clínica
+                    abrirEvaluacion(pacienteId);
+                    // 3. Recargar datos de fondo (para actualizar contadores)
+                    cargarDatos();
+                }
+            });
+        }
+
+        function safeSet(id, value) { const el = document.getElementById(id); if(el) el.value = value || ''; }
+
         function abrirEvaluacion(id) {
             let p = listaPacientes.find(x => x.id == id); if(!p) return;
-            var firstTab = new bootstrap.Tab(document.querySelector('#pills-tab button:first-child')); firstTab.show();
-            document.getElementById('eval_id').value = p.id;
-            document.getElementById('hist_nombre').value = p.nombre_completo;
-            document.getElementById('hist_cedula').value = p.cedula;
-            document.getElementById('hist_emergencia').value = p.contacto_emergencia || '';
-            document.getElementById('hist_direccion').value = p.direccion || '';
+            
+            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(t => t.classList.remove('show','active'));
+            document.querySelector('#pills-tab button:first-child').classList.add('active');
+            document.querySelector('#tab-anamnesis').classList.add('show','active');
+
+            safeSet('eval_id', p.id);
+            safeSet('hist_nombre', p.nombre_completo);
+            safeSet('hist_cedula', p.cedula);
+            safeSet('hist_emergencia', p.contacto_emergencia);
+            safeSet('hist_direccion', p.direccion);
+            
             let edad = 0; if(p.fecha_nacimiento) { let diff = Date.now() - new Date(p.fecha_nacimiento).getTime(); edad = Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25)); }
-            document.getElementById('eval_edad').value = edad;
-            document.getElementById('eval_sexo').value = p.sexo;
-            let h = {}; try { h = JSON.parse(p.historia_completa || '{}'); } catch(e) {}
-            const map = { 'hist_sangre': h.sangre, 'ant_patologicos': h.ant_patologicos, 'ant_comorbilidades': h.ant_comorbilidades, 'ant_familiar': h.ant_familiar, 'ant_otros': h.ant_otros, 'sint_urinarios': h.sint_urinarios, 'sint_generales': h.sint_generales, 'trat_meds': h.trat_meds, 'trat_comorb': h.trat_comorb, 'trat_previos': h.trat_previos, 'trat_dialisis': h.trat_dialisis, 'lab_calcio': h.lab_calcio, 'lab_fosforo': h.lab_fosforo, 'lab_pth': h.lab_pth, 'lab_acr': h.lab_acr, 'lab_eco': h.lab_eco, 'lab_biopsia': h.lab_biopsia };
-            for(let id in map) { if(document.getElementById(id)) document.getElementById(id).value = map[id] || ''; }
-            document.getElementById('lab_urea').value = p.urea || '';
-            document.getElementById('lab_crea').value = p.creatinina || '';
-            document.getElementById('eval_estadio').value = p.estadio_erc || '';
+            safeSet('eval_edad', edad);
+            safeSet('eval_sexo', p.sexo);
+            
+            let h = {}; try { h = typeof p.historia_completa === 'string' ? JSON.parse(p.historia_completa) : (p.historia_completa || {}); } catch(e) {}
+            
+            safeSet('hist_sangre', h.sangre);
+            safeSet('ant_patologicos', h.ant_patologicos);
+            safeSet('ant_familiar', h.ant_familiar);
+            safeSet('ant_comorbilidades', h.ant_comorbilidades);
+            safeSet('trat_meds', h.trat_meds);
+            safeSet('trat_dialisis', h.trat_dialisis);
+            safeSet('dial_maquina', h.dial_maquina);
+            safeSet('dial_perfil', h.dial_perfil);
+            safeSet('dial_peso', h.dial_peso);
+            safeSet('dial_presion', h.dial_presion);
+            safeSet('lab_calcio', h.lab_calcio);
+            safeSet('lab_fosforo', h.lab_fosforo);
+            safeSet('lab_pth', h.lab_pth);
+            safeSet('lab_albumina', h.lab_albumina);
+            
+            safeSet('lab_urea', p.urea);
+            safeSet('lab_crea', p.creatinina);
+            safeSet('eval_estadio', p.estadio_erc);
+            
             calcularTFG();
             new bootstrap.Modal(document.getElementById('modalEvaluacion')).show();
         }
 
         function calcularTFG() {
-            let crea = parseFloat(document.getElementById('lab_crea').value);
-            let edad = parseInt(document.getElementById('eval_edad').value);
+            let elCrea = document.getElementById('lab_crea');
+            let elEdad = document.getElementById('eval_edad');
+            if(!elCrea || !elEdad) return;
+
+            let crea = parseFloat(elCrea.value);
+            let edad = parseInt(elEdad.value);
             let sexo = document.getElementById('eval_sexo').value;
+            
             if(crea > 0) {
                 let factor = (sexo === 'Femenino') ? 0.742 : 1;
                 let tfg = 186 * Math.pow(crea, -1.154) * Math.pow(edad, -0.203) * factor;
                 document.getElementById('eval_tfg').innerText = tfg.toFixed(1);
-                let est = tfg >= 90 ? "Estadio 1" : (tfg >= 60 ? "Estadio 2" : (tfg >= 30 ? "Estadio 3" : (tfg >= 15 ? "Estadio 4" : "Estadio 5")));
+                let est = tfg >= 90 ? "Estadio 1" : (tfg >= 60 ? "Estadio 2" : (tfg >= 30 ? "Estadio 3" : (tfg >= 15 ? "Estadio 4" : "Estadio 5 (IRC)")));
                 document.getElementById('eval_estadio').value = est;
             } else { document.getElementById('eval_tfg').innerText = "--"; }
         }
 
         function guardarEvaluacion() {
             let id = document.getElementById('eval_id').value;
-            let historia = { sangre: document.getElementById('hist_sangre').value, ant_patologicos: document.getElementById('ant_patologicos').value, ant_comorbilidades: document.getElementById('ant_comorbilidades').value, ant_familiar: document.getElementById('ant_familiar').value, ant_otros: document.getElementById('ant_otros').value, sint_urinarios: document.getElementById('sint_urinarios').value, sint_generales: document.getElementById('sint_generales').value, trat_meds: document.getElementById('trat_meds').value, trat_comorb: document.getElementById('trat_comorb').value, trat_previos: document.getElementById('trat_previos').value, trat_dialisis: document.getElementById('trat_dialisis').value, lab_calcio: document.getElementById('lab_calcio').value, lab_fosforo: document.getElementById('lab_fosforo').value, lab_pth: document.getElementById('lab_pth').value, lab_acr: document.getElementById('lab_acr').value, lab_eco: document.getElementById('lab_eco').value, lab_biopsia: document.getElementById('lab_biopsia').value, fecha_update: new Date().toISOString() };
-            let body = { urea: document.getElementById('lab_urea').value, creatinina: document.getElementById('lab_crea').value, estadio: document.getElementById('eval_estadio').value, comorbilidades: document.getElementById('ant_comorbilidades').value, historia_completa: historia };
-            fetch(`/api/doctor/actualizar-clinica/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(r=>r.json()).then(res => { if(res.success) { Swal.fire('Guardado', 'Historia actualizada', 'success'); bootstrap.Modal.getInstance(document.getElementById('modalEvaluacion')).hide(); cargarDatos(); }});
+            let historia = { 
+                sangre: document.getElementById('hist_sangre').value, 
+                ant_patologicos: document.getElementById('ant_patologicos').value, 
+                ant_familiar: document.getElementById('ant_familiar').value,
+                ant_comorbilidades: document.getElementById('ant_comorbilidades').value, 
+                trat_meds: document.getElementById('trat_meds').value, 
+                trat_dialisis: document.getElementById('trat_dialisis').value, 
+                dial_maquina: document.getElementById('dial_maquina').value,
+                dial_perfil: document.getElementById('dial_perfil').value,
+                dial_peso: document.getElementById('dial_peso').value,
+                dial_presion: document.getElementById('dial_presion').value,
+                lab_calcio: document.getElementById('lab_calcio').value, 
+                lab_fosforo: document.getElementById('lab_fosforo').value, 
+                lab_pth: document.getElementById('lab_pth').value,
+                lab_albumina: document.getElementById('lab_albumina').value,
+                fecha_update: new Date().toISOString() 
+            };
+
+            let body = { 
+                urea: document.getElementById('lab_urea').value, 
+                creatinina: document.getElementById('lab_crea').value, 
+                estadio: document.getElementById('eval_estadio').value, 
+                comorbilidades: document.getElementById('ant_comorbilidades').value, 
+                historia_completa: historia 
+            };
+
+            fetch(`/api/doctor/actualizar-clinica/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) })
+            .then(r=>r.json()).then(res => { 
+                if(res.success) { 
+                    Swal.fire('Guardado', 'Historia clínica actualizada', 'success'); 
+                    bootstrap.Modal.getInstance(document.getElementById('modalEvaluacion')).hide(); 
+                    cargarDatos(); 
+                }
+            });
+        }
+
+        function enviarArchivo(e) {
+            e.preventDefault(); 
+            const form = document.getElementById('form-telemedicina');
+            const formData = new FormData(form);
+            fetch('/api/enviar-receta', { method: 'POST', body: formData })
+            .then(r => r.json()).then(res => {
+                if(res.success) { Swal.fire('Enviado', 'Documento compartido', 'success'); form.reset(); cargarHistorialTelemedicina(); }
+                else Swal.fire('Error', 'Fallo al subir', 'error');
+            });
+        }
+
+        function cargarHistorialTelemedicina() {
+            fetch('/api/historial-archivos').then(r=>r.json()).then(d => {
+                let html = '';
+                d.forEach(h => {
+                    html += `<tr>
+                        <td>${new Date(h.fecha_envio).toLocaleDateString()}</td>
+                        <td class="fw-bold">${h.paciente_nombre}</td>
+                        <td><span class="badge bg-info text-dark">${h.tipo_archivo}</span></td>
+                        <td class="small text-muted text-truncate" style="max-width: 150px;">${h.descripcion||'-'}</td>
+                        <td><a href="${h.ruta_archivo}" target="_blank" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                    </tr>`;
+                });
+                document.getElementById('tabla-historial-telemedicina').innerHTML = html || '<tr><td colspan="5" class="text-center text-muted">Sin envíos registrados.</td></tr>';
+            });
         }
 
         function generarHL7() {
             const now = new Date();
-            const timestamp = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + String(now.getHours()).padStart(2,'0');
+            const ts = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + String(now.getHours()).padStart(2,'0');
             const paciente = document.getElementById('hist_nombre').value;
             const cedula = document.getElementById('hist_cedula').value;
             const urea = document.getElementById('lab_urea').value;
             const crea = document.getElementById('lab_crea').value;
             const tfg = document.getElementById('eval_tfg').innerText;
-            const hl7Content = `MSH|^~\\&|SINEF|HGC|NEFRO|HGC|${timestamp}||ORU^R01|MSG-${timestamp}|P|2.5\nPID|1||${cedula}^^^HGC^MR||${paciente.replace(' ','^')}|||||${document.getElementById('hist_direccion').value}\nOBR|1|ORD-${timestamp}||NEFRO^PANEL NEFROLOGICO\nOBX|1|NM|UREA^Urea||${urea}|mg/dL\nOBX|2|NM|CREAT^Creatinina||${crea}|mg/dL\nOBX|3|NM|GFR^Tasa Filtrado||${tfg}|mL/min\nNTE|1|L|${document.getElementById('ant_patologicos').value.replace(/\n/g,' ')}`;
-            const blob = new Blob([hl7Content], { type: 'text/plain' });
+            
+            const hl7 = `MSH|^~\\&|SINEF|CINYDMC|NEFRO|HGC|${ts}||ORU^R01|MSG-${ts}|P|2.5\rPID|1||${cedula}^^^CINYDMC^MR||${paciente.replace(' ','^')}|||||${document.getElementById('hist_direccion').value}\rOBR|1|ORD-${ts}||PERFIL_RENAL^Panel Nefrologia\rOBX|1|NM|UREA^Urea||${urea}|mg/dL\rOBX|2|NM|CREAT^Creatinina||${crea}|mg/dL\rOBX|3|NM|GFR^Tasa Filtrado||${tfg}|mL/min`;
+            
+            const blob = new Blob([hl7], { type: 'text/plain' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = `HL7_${cedula}.hl7`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
